@@ -16,24 +16,45 @@ letter		[A-Za-z_]
 digit		[0-9]
 id		{letter}({letter}|{digit})*
 integer_const	([1-9]{digit}*)|"0"
-white-space		[ \t]+
+white-space	[ \t]+
 special-char	\\[nt]
-
+unary-op	"!"|"+"|"-"|"*"|"/"|"%"|"&"|"|"|"="|"("|")"|"["|"]"|"{"|"}"
 
 %x COMMENT
 %%
-"int" 	|
-"char"	{ return TYPE; }
-"struct" 	{ return STRUCT;}
-{id}	{
-		   struct id *entered  = enter(ID, yytext, yyleng);
-		   yylval.stringVal = entered->name;
-		   return entered->tokenType;
-		}
+"int" | 
+"char"		{ return TYPE; }
+"struct" 	{ return STRUCT; }
 {integer_const}	{
 		   yylval.intVal = atoi(yytext);
 		   return INTEGER_CONST;
 		}
+"return"	{ return RETURN; }
+"if"		{ return IF; }
+"else"		{ return ELSE; }
+"while"		{ return WHILE; }
+"for"		{ return FOR; }
+"break"		{ return BREAK; }
+"continue"	{ return CONTINUE; }
+{id}		{
+		   struct id *entered  = enter(ID, yytext, yyleng);
+		   yylval.stringVal = entered->name;
+		   return entered->tokenType;
+		}
+"+=" |
+"-=" |
+"*=" |
+"/=" |
+"%="		{ return ASSIGNOP; }
+"||"		{ return LOGICAL_OR; }
+"&&"		{ return LOGICAL_AND; }
+"<" |
+"<=" |
+">" |
+">="		{ return RELOP; }
+"==" |
+"!="		{ return EQUOP; }
+{unary-op}	{ return yytext[0]; }
 \"({special-char}|[^\\\"\n])*\"	{
 			/* String Variable */
 		   yylval.stringVal = yytext;
@@ -44,6 +65,9 @@ special-char	\\[nt]
 		   yylval.stringVal = yytext;
 		   return CHAR_CONST;
 		}
+"++"		{ return PLUS_PLUS; }
+"--"		{ return MINUS_MINUS; }
+"."		{ return STRUCTOP; }
 ","		{ return ','; }
 ";"		{ return yytext[0]; }
 
@@ -61,8 +85,8 @@ special-char	\\[nt]
    
 int main(int argc, char* argv[])
 {
-   static char *keyword[] = { "int", NULL };
-   static int tokentype[] = { TYPE, 0 };
+   static char *keyword[] = { "int", "char", "struct", "return", "if", "else", "while", "for", "break", "continue", "+=", "-=", "*=", "/=", "%=", "||", "&&", "<", "<=", ">", ">=", "==", "!=", "++", "--", ".", NULL}; 
+   static int tokentype[] = { TYPE, TYPE, STRUCT, RETURN, IF, ELSE, WHILE, FOR, BREAK, CONTINUE, ASSIGNOP, ASSIGNOP, ASSIGNOP, ASSIGNOP, ASSIGNOP, LOGICAL_OR, LOGICAL_AND, RELOP, RELOP, RELOP, RELOP, EQUOP, EQUOP, PLUS_PLUS, MINUS_MINUS, STRUCTOP, 0 };
    int i;
    for(i = 0; keyword[i] != NULL; i++)
       enter(tokentype[i], keyword[i], strlen(keyword[i]));

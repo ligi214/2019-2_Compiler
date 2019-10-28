@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <strings.h>
 
+#define IDENTIFIER 	0
+#define KEYWORD		1
+
 typedef struct id {
 	int tokenType;
 	char *name;
