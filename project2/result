@@ -15,6 +15,18 @@ decl->var_decl
 decl_list->decl
 def->type_specifier decl_list ';'
 def_list->def_list def
+type_specifier->TYPE
+var_decl->ID
+decl->var_decl
+decl_list->decl
+def->type_specifier decl_list ';'
+def_list->def_list def
+type_specifier->TYPE
+var_decl->ID
+decl->var_decl
+decl_list->decl
+def->type_specifier decl_list ';'
+def_list->def_list def
 local_defs->def_list
 stmt_list->epsilon
 unary->ID

@@ -1,6 +1,8 @@
 int main(){
 
-	int a;
+	int pi;
+	int c;
+	int d;
 	char b;
 
 	a = 10;

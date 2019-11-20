@@ -20,10 +20,10 @@ int getHashValue(char* name, int length){
 	// return index of the lex in the hashtable
 	int hashval = 0;
 	for(int i=0;i<length;i++){
-		hashval = hashval * 128 + name[i];
+		hashval = hashval * HASH_TABLE_SIZE + name[i];
 		hashval = hashval%HASH_TABLE_SIZE;
 	}
-	while(hashTable[hashval]!=NULL && strcmp(hashTable[hashval]->data->name, name)!=0) hashval++;
+	while(hashTable[hashval]!=NULL && strcmp(hashTable[hashval]->data->name, name)!=0) hashval=(hashval+1)%HASH_TABLE_SIZE;
 	return hashval;
 }
 
