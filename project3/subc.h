@@ -40,6 +40,7 @@
 #define _ARRAY		4
 #define _STRUCT		5
 #define _POINTER	6
+#define _NULL		7
 
 typedef struct id {
 	char *name;
@@ -78,6 +79,7 @@ typedef struct decl{
 decl* voidtype;
 decl* inttype;
 decl* chartype;
+decl* nulltype;
 id* returnid;
 
 char *filename;
@@ -120,6 +122,7 @@ decl* makestructdecl(ste *fields);
 decl* makenumconstdecl(decl *typedecl, int value);
 decl* makecharconstdecl(decl *typedecl, char value);
 decl* makefuncdecl();
+decl* makenulldecl();
 
 /* Checking functions */
 /* Defined in check.c */

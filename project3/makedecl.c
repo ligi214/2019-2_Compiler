@@ -85,3 +85,4 @@ decl* makefuncdecl(){
 	funcdecl->declclass = _FUNC;
 	return funcdecl;
 }
+

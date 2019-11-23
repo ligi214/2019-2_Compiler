@@ -1982,9 +1982,11 @@ void init_type(){
 	voidtype = maketypedecl(_VOID);
 	inttype = maketypedecl(_INT);
 	chartype = maketypedecl(_CHAR);
+	nulltype = maketypedecl(_NULL);
 	declare(enter(VOID, "void", 4), voidtype);
 	declare(enter(TYPE, "int", 3), inttype);
 	declare(enter(TYPE, "char", 4), chartype);
+	declare(enter(NULL_TOKEN, "NULL", 4), nulltype);
 	returnid = enter(ID, "*return", 7);
 }
    

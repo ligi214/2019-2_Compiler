@@ -38,6 +38,9 @@ int check_is_pointer_type(decl *targetdecl){
 }
 
 int check_sametype(decl *x, decl *y){
+	if(!x && !y) return 1;
+	else if(!x || !y) return 0;
+	
 	if(x->declclass!=_TYPE || y->declclass!=_TYPE) return 0;
 	if(x->typeclass == y->typeclass){
 		if(check_is_int_type(x) || check_is_char_type(y)) return 1;
@@ -58,9 +61,13 @@ int check_sametype(decl *x, decl *y){
 }
 
 int check_is_same_type_pointer(decl *x, decl *y){
+	if(!x && !y) return 1;
+	else if(!x || !y) return 0;
+
 	if(x->declclass != _TYPE || y->declclass != _TYPE) return 0;
 	if(x->typeclass != _POINTER || y->typeclass != _POINTER) return 0;
-	if(x->ptrto == y->ptrto) return 1;
+	if(x->ptrto == nulltype || y->ptrto == nulltype) return 1;
+	if(check_sametype(x->ptrto, y->ptrto)) return 1;
 	return 0;
 }
 
@@ -96,7 +103,7 @@ int check_relop_compatible(decl *x, decl *y){
 int check_equop_compatible(decl *x, decl *y){
 	if(check_is_int_type(x->type) && check_is_int_type(y->type)) return 1;
 	if(check_is_char_type(x->type) && check_is_char_type(y->type)) return 1;
-	if(check_is_same_type_pointer(x, y)) return 1;
+	if(check_is_same_type_pointer(x->type, y->type)) return 1;
 	return 0;
 }
 
@@ -115,4 +122,7 @@ int check_plus_minus_compatible(decl *x, decl *y){
 	return 0;
 }
 
-
+int check_is_null_type(decl *x){
+	if(x==nulltype) return 1;
+	return 0;
+}

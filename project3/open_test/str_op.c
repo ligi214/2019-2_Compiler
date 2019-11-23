@@ -29,6 +29,11 @@ int main(void) {
 	struct str1 *pst1;
 	struct str2 *pst2;
 
+	st1 = st2; /* error */
+	pst1 = pst2; /* error */
+	st1 = st1;
+	st1 = *pst1;
+
 	pst1 = &st1;
 	pst2 = st1; /* error : LHS and RHS type */
 	pst2 = &st2;

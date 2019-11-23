@@ -135,27 +135,34 @@ type_specifier
 
 struct_specifier
 		: STRUCT ID '{' {
+			decl *structdecl = findcurrentdecl($2);
+			if(structdecl){
+				raise("redeclaration");
+			}
 			push_scope();
 		}
 		def_list '}' {
 			ste *fields = pop_scope();
-			decl *structdecl = makestructdecl(fields);
-			declare($2, structdecl);
-			if(scopestack != globalscope){
-				ste *struct_ste = symboltable;
-				ste *temp = symboltable;
-				while(temp && temp->prev!=globalscope->topste){
-					temp = temp->prev;
-				}
-				if(!temp){
-					raise("abnormal accident happened while defining struct"); // not the case
-				}
-				else{
-					symboltable = struct_ste->prev;
-					temp->prev = struct_ste;
-					struct_ste -> prev = globalscope->topste;
-					globalscope->topste = struct_ste;
-					structdecl->scope = globalscope;
+			decl *structdecl = findcurrentdecl($2);
+			if(!structdecl){
+				structdecl = makestructdecl(fields);
+				declare($2, structdecl);
+				if(scopestack != globalscope){
+					ste *struct_ste = symboltable;
+					ste *temp = symboltable;
+					while(temp && temp->prev!=globalscope->topste){
+						temp = temp->prev;
+					}
+					if(!temp){
+						raise("abnormal accident happened while defining struct"); // not the case
+					}
+					else{
+						symboltable = struct_ste->prev;
+						temp->prev = struct_ste;
+						struct_ste -> prev = globalscope->topste;
+						globalscope->topste = struct_ste;
+						structdecl->scope = globalscope;
+					}
 				}
 			}
 			$$ = structdecl;
@@ -256,6 +263,7 @@ func_decl
 				$$ = funcdecl;
 			}
 			else{
+				push_scope();
 				$$ = NULL;
 			}
 		}
@@ -413,16 +421,19 @@ stmt
 		}
 		| RETURN expr ';' {
 			// Return type compatibility check
-			ste *formals = pop_scope();
-			if(formals->decl==$2->type){
-				$$ = formals;
-			}
+			if(!$2) { $$ = NULL; }
 			else{
-				raise("incompatible return types");
-				$$ = NULL;
+				ste *formals = pop_scope();
+				if(check_sametype(formals->decl, $2->type)){
+					$$ = formals;
+				}
+				else{
+					raise("incompatible return types");
+					$$ = NULL;
+				}
+				push_scope();
+				pushstelist(formals);
 			}
-			push_scope();
-			pushstelist(formals);
 		}
 		| ';'
 		| IF '(' expr ')' stmt
@@ -433,11 +444,11 @@ stmt
 		| CONTINUE ';'
 
 expr_e
-		: expr
+		: expr { $$ = $1; }
 		| /* empty */
 
 const_expr
-		: expr
+		: expr { $$ = $1; }
 
 expr
 		: unary '=' expr {
@@ -447,7 +458,12 @@ expr
 			if(!$1 || !$3) { $$ = NULL; }
 			else if(check_is_var($1)){
 				if(check_sametype($1->type, $3->type)){
-					$$ = $3;
+					if(check_is_pointer_type($1->type)==0 && check_is_null_type($3->type)){
+						raise("RHS is not a constant or variable");
+					}
+					else{
+						$$ = $1;
+					}
 				}
 				else{
 					raise("LHS and RHS are not same type");
@@ -512,7 +528,8 @@ and_list
 
 binary
 		: binary RELOP binary {
-			if(check_relop_compatible($1, $3)){
+			if(!$1 || !$3){ $$ = NULL; }
+			else if(check_relop_compatible($1, $3)){
 				$$ = makevardecl(inttype);
 				if(check_is_const($1) && check_is_const($3)){
 					if($2==_LT){ $$->int_value = ($1->int_value < $3->int_value); }
@@ -531,7 +548,8 @@ binary
 			}
 		}
 		| binary EQUOP binary {
-			if(check_equop_compatible($1, $3)){
+			if(!$1 || !$3){ $$ = NULL; }
+			else if(check_equop_compatible($1, $3)){
 				$$ = makevardecl(inttype);
 				if(check_is_const($1) && check_is_const($3)){
 					if($2==_EQ){ $$->int_value = ($1->int_value == $3->int_value); }
@@ -548,7 +566,8 @@ binary
 			}
 		}
 		| binary '+' binary {
-			if(check_plus_minus_compatible($1, $3)){
+			if(!$1 || !$3) { $$ = NULL; }
+			else if(check_plus_minus_compatible($1, $3)){
 				$$ = makevardecl(inttype);
 				if(check_is_const($1) && check_is_const($3)){
 					$$->int_value = $1->int_value + $3->int_value;
@@ -563,7 +582,8 @@ binary
 			}
 		}
 		| binary '-' binary {
-			if(check_plus_minus_compatible($1, $3)){
+			if(!$1 || !$3){ $$ = NULL; }
+			else if(check_plus_minus_compatible($1, $3)){
 				$$ = makevardecl(inttype);
 				if(check_is_const($1) && check_is_const($3)){
 					$$->int_value = $1->int_value - $3->int_value;
@@ -572,7 +592,10 @@ binary
 					$$->declclass = _EXPR;
 				}
 			}
-			else{ $$ = NULL; }
+			else{
+				raise("not computable");
+				$$ = NULL;
+			}
 		}
 		| unary %prec '=' {
 			$$ = $1;
@@ -592,7 +615,11 @@ unary
 			$$ = makecharconstdecl(chartype, $1);
 		}
 		| STRING {
-			$$ = makeptrdecl(chartype);
+			$$ = makevardecl(makeptrdecl(chartype));
+			$$->declclass = _EXPR;
+		}
+		| NULL_TOKEN {
+			$$ = makevardecl(makeptrdecl(nulltype));
 			$$->declclass = _EXPR;
 		}
 		| ID {
@@ -608,7 +635,8 @@ unary
 			}
 		}
 		| '-' unary	%prec '!'{
-			if(check_is_int_type($2->type)){
+			if(!$2) { $$ = NULL; }
+			else if(check_is_int_type($2->type)){
 				$$ = makeconstdecl(inttype);
 				if(check_is_const($2)){
 					$$->int_value = -($2->int_value);
@@ -733,17 +761,19 @@ unary
 			}
 		}
 		| unary '[' expr ']' {
-			if(!$1){ $$ = NULL; }
+			if(!$1 || !$3){ $$ = NULL; }
 			else if(check_is_array_type($1->type)){
 				if(check_is_const($3) && check_is_int_type($3->type)){
 					$$ = makevardecl($1->type->elementvar->type);
 				}
 				else{
 					raise("array index is not integer const"); // not the case here
+					$$ = NULL;
 				}
 			}
 			else{
 				raise("not an array type");
+				$$ = NULL;
 			}
 		}
 		| unary '.' ID {
@@ -821,12 +851,18 @@ unary
 
 args    /* actual parameters(function arguments) transferred to function */
 		: expr {
-			$$ = $1;
-			$$->next = NULL;
+			if(!$1) { $$ = NULL; }
+			else{
+				$$ = $1;
+				$$->next = NULL;
+			}
 		}
 		| args ',' expr {
-			$3->next = $1;
-			$$ = $3;
+			if(!$1 || !$3) { $$ = NULL; }
+			else{
+				$3->next = $1;
+				$$ = $3;
+			}
 		}
 
 
