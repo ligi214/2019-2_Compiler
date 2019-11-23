@@ -2,4 +2,10 @@
 2016-18829
 ligi214@snu.ac.kr
 
-Makefile 변경사항 없음
+여러 함수들을 새롭게 정의하여, 역할에 따라 구분하기 위해 check.c, makedecl.c, utils.c와 같이 나누어 구현하였습니다.
+따라서, compile 시, 이들을 함께 컴파일하도록 Makefile을 일부 수정하였습니다.
+
+컴파일은  기존 방식대로 "make"를 입력하여 진행할 수 있으며, 마치면 subc라는 실행파일이 만들어지게 됩니다.
+이를 실행시키기 위해서는
+./subc open_test/test.c>result
+와 같이 입력함으로써 "result" file에 결과를 출력 가능합니다.
