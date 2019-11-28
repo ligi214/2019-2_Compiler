@@ -3,11 +3,13 @@
 #include <stdlib.h>
 
 int check_is_type(decl *targetdecl){
+	if(!targetdecl) return 0;
 	if (targetdecl->declclass==_TYPE) return 1;
 	return 0;
 }
 
 int check_is_struct_type(decl *targetdecl){
+	if(!targetdecl) return 0;
 	if(targetdecl->declclass==_TYPE && targetdecl->typeclass==_STRUCT) return 1;
 	return 0;
 }
@@ -18,21 +20,25 @@ int check_is_int_type(decl *targetdecl){
 }
 
 int check_is_char_type(decl *targetdecl){
+	if(!targetdecl) return 0;
 	if(targetdecl->declclass==_TYPE && targetdecl->typeclass==_CHAR) return 1;
 	return 0;
 }
 
 int check_is_func_type(decl *targetdecl){
+	if(!targetdecl) return 0;
 	if(targetdecl->declclass==_FUNC) return 1;
 	return 0;
 }
 
 int check_is_array_type(decl *targetdecl){
+	if(!targetdecl) return 0;
 	if(targetdecl->declclass==_TYPE && targetdecl->typeclass==_ARRAY) return 1;
 	return 0;
 }
 
 int check_is_pointer_type(decl *targetdecl){
+	if(!targetdecl) return 0;
 	if(targetdecl->declclass==_TYPE && targetdecl->typeclass==_POINTER) return 1;
 	return 0;
 }
@@ -74,6 +80,7 @@ int check_is_same_type_pointer(decl *x, decl *y){
 decl* check_function_call(decl *func, decl *formals){
 	// Compare function's formals and given formals and if invalid, return NULL
 	// If valid, return returnid
+	if(!func) return NULL;
 	ste *temp_func = func->formals;
 	decl *temp_actual = formals;
 	decl *prev = NULL;
@@ -95,12 +102,14 @@ decl* check_function_call(decl *func, decl *formals){
 }
 
 int check_relop_compatible(decl *x, decl *y){
+	if(!x || !y) return 0;
 	if(check_is_int_type(x->type) && check_is_int_type(y->type)) return 1;
 	if(check_is_char_type(x->type) && check_is_char_type(y->type)) return 1;
 	return 0;
 }
 
 int check_equop_compatible(decl *x, decl *y){
+	if(!x || !y) return 0;
 	if(check_is_int_type(x->type) && check_is_int_type(y->type)) return 1;
 	if(check_is_char_type(x->type) && check_is_char_type(y->type)) return 1;
 	if(check_is_same_type_pointer(x->type, y->type)) return 1;
@@ -108,16 +117,19 @@ int check_equop_compatible(decl *x, decl *y){
 }
 
 int check_is_const(decl *targetdecl){
+	if(!targetdecl) return 0;
 	if(targetdecl->declclass==_CONST) return 1;
 	return 0;
 }
 
 int check_is_var(decl *targetdecl){
+	if(!targetdecl) return 0;
 	if(targetdecl->declclass==_VAR) return 1;
 	return 0;
 }
 
 int check_plus_minus_compatible(decl *x, decl *y){
+	if(!x || !y) return 0;
 	if(check_is_int_type(x->type) && check_is_int_type(y->type)) return 1;
 	return 0;
 }

@@ -56,7 +56,6 @@ decl* makestructdecl(ste *fields){
 
 decl* makenumconstdecl(decl *typedecl, int value){
 	if(!check_is_int_type(typedecl)){
-		printf("[ERROR]makedecl.c:makenumconstdecl : typedecl is not int type decl\n");
 		return NULL;
 	}
 	decl *numdecl = (decl *)malloc(sizeof(decl));
@@ -69,7 +68,6 @@ decl* makenumconstdecl(decl *typedecl, int value){
 
 decl* makecharconstdecl(decl *typedecl, char value){
 	if(!check_is_char_type(typedecl)){
-		printf("[ERROR]makedecl.c:makenumconstdecl : typedecl is not char type decl\n");
 		return NULL;
 	}
 	decl *chardecl = (decl *)malloc(sizeof(decl));

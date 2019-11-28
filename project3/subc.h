@@ -82,6 +82,7 @@ decl* chartype;
 decl* nulltype;
 id* returnid;
 
+int error_msg;
 char *filename;
 
 /* Defined in utils.c */

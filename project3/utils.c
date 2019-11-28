@@ -9,17 +9,13 @@ void declare(id* name, decl *decl){
 	temp->name = name;
 	temp->decl = decl;
 	temp->prev = symboltable;
-	if(!scopestack) { printf("[ERROR]utils.c:declare : NULL scope error\n"); }
-	else { scopestack->topste = temp; }
+	if(scopestack) { scopestack->topste = temp; }
 	symboltable = temp;
 }
 
 void add_type_to_var(decl *typedecl, decl *vardecl){
 	if(check_is_type(typedecl)){
 		vardecl->type = typedecl;
-	}
-	else{
-		printf("[ERROR]utils.c:add_type_to_var : typedecl is not type\n");
 	}
 }
 
@@ -43,14 +39,12 @@ void push_scope(){
 
 ste* pop_scope(){
 	if(!scopestack){
-		printf("[ERROR]utils.c:pop_scope : No scope in scopestack\n");
 		return NULL;
 	}
 	ste *top = scopestack->topste;
 	ste *temp = top;
 	ste *bottom = top;
 	if(!top){
-		printf("[ERROR]utils.c:pop_scope : No ste in scopestack\n");
 		return NULL;
 	}
 	scope *prev = scopestack->prev;
@@ -66,7 +60,6 @@ ste* pop_scope(){
 		return bottom;
 	}
 	if(top==prev->topste){
-		printf("[ERROR]utils.c:pop_scope : No ste was pushed in this scope\n");
 		return NULL;
 	}
 	while(top->prev != NULL && top->prev != prev->topste){
@@ -75,7 +68,7 @@ ste* pop_scope(){
 		temp->prev = bottom;
 		bottom = temp;
 	}
-	if(!bottom) { printf("[ERROR]utils.c:pop_scope : pop_scope is not working\n"); return NULL; }
+	if(!bottom) { return NULL; }
 	top->prev = NULL;
 	symboltable = prev->topste;
 	return bottom;

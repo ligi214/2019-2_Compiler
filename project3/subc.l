@@ -101,7 +101,7 @@ unary-op	"!"|"+"|"-"|"*"|"/"|"%"|"&"|"="|"("|")"|"["|"]"|"{"|"}"|"."
 ";"				{ return yytext[0]; }
 
 {white-space}
-<*>\n		   ++lineno;
+<*>\n		   { ++lineno; error_msg=1; }
 <INITIAL,COMMENT>"/*"	{
 		   ++comment_depth;
 		   BEGIN (COMMENT);
@@ -116,6 +116,7 @@ int read_line(){
 }
 
 void init_type(){
+	error_msg = 1;
 	push_scope();
 	globalscope = scopestack;
 

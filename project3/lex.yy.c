@@ -941,7 +941,7 @@ case 23:
 /* rule 23 can match eol */
 YY_RULE_SETUP
 #line 104 "subc.l"
-++lineno;
+{ ++lineno; error_msg=1; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
@@ -1976,6 +1976,7 @@ int read_line(){
 }
 
 void init_type(){
+	error_msg = 1;
 	push_scope();
 	globalscope = scopestack;
 

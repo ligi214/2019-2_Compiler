@@ -1,6 +1,1 @@
-open_test/func_op.c:16: error:not computable
-open_test/func_op.c:31: error:actual args are not equal to formal args
-open_test/func_op.c:32: error:actual args are not equal to formal args
-open_test/func_op.c:36: error:actual args are not equal to formal args
-open_test/func_op.c:38: error:LHS and RHS are not same type
-open_test/func_op.c:39: error:actual args are not equal to formal args
+open_test/ppt_slide_test_op.c:4: error:LHS and RHS are not same type

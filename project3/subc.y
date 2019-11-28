@@ -154,7 +154,7 @@ struct_specifier
 						temp = temp->prev;
 					}
 					if(!temp){
-						raise("abnormal accident happened while defining struct"); // not the case
+						debug("abnormal accident happened while defining struct"); // not the case
 					}
 					else{
 						symboltable = struct_ste->prev;
@@ -162,6 +162,7 @@ struct_specifier
 						struct_ste -> prev = globalscope->topste;
 						globalscope->topste = struct_ste;
 						structdecl->scope = globalscope;
+						scopestack->topste = symboltable;
 					}
 				}
 			}
@@ -170,12 +171,12 @@ struct_specifier
 		| STRUCT ID {
 			decl *structdecl = findcurrentdecl($2);
 			if(!structdecl){
-				raise("not declared");
+				raise("incomplete type");
 				$$ = NULL;
 			}
 			else{
 				if(!check_is_struct_type(structdecl)){
-					raise("not struct type"); // not the case here
+					raise("incomplete type"); // not the case here
 					$$ = NULL;
 				}
 				else{
@@ -190,6 +191,16 @@ func_decl
 			if(funcdecl) { 
 				raise("redeclaration");
 				$<declptr>$ = NULL; 
+				push_scope();
+				if(!$2){
+					declare(returnid, $1);
+				}
+				else{
+					declare(returnid, makeptrdecl($1));
+				}
+				ste *formals = pop_scope();
+				push_scope();
+				pushstelist(formals);
 			}
 			else{
 				funcdecl = makefuncdecl();
@@ -213,6 +224,16 @@ func_decl
 			decl *funcdecl = finddecl_in_current_scope($3);
 			if(funcdecl){
 				raise("redeclaration");
+				push_scope();
+				if(!$2){
+					declare(returnid, $1);
+				}
+				else{
+					declare(returnid, makeptrdecl($1));
+				}
+				ste *formals = pop_scope();
+				push_scope();
+				pushstelist(formals);
 				$<declptr>$ = NULL;
 			}
 			else{
@@ -236,7 +257,13 @@ func_decl
 		| type_specifier pointers ID '(' {
 			decl *funcdecl = finddecl_in_current_scope($3);
 			if(funcdecl){
-				raise("redeclaration");
+				push_scope();
+				if(!$2){
+					declare(returnid, $1);
+				}
+				else{
+					declare(returnid, makeptrdecl($1));
+				}
 				$<declptr>$ = NULL;
 			}
 			else{
@@ -254,7 +281,7 @@ func_decl
 		}
 		param_list ')' {
 			decl *funcdecl = $<declptr>5;
-			if(funcdecl){
+			if($6 && funcdecl){
 				ste *formals = pop_scope();
 				funcdecl->returntype = formals->decl;
 				funcdecl->formals = copy_ste(formals->prev);
@@ -262,8 +289,17 @@ func_decl
 				pushstelist(formals);
 				$$ = funcdecl;
 			}
-			else{
+			else if($6){
+				raise("redeclaration");
+				ste *formals = pop_scope();
 				push_scope();
+				pushstelist(formals);
+				$$ = NULL;
+			}
+			else{
+				ste *formals = pop_scope();
+				push_scope();
+				pushstelist(formals);
 				$$ = NULL;
 			}
 		}
@@ -277,8 +313,11 @@ pointers
 		}
 
 param_list  /* list of formal parameter declaration */
-		: param_decl 
-		| param_list ',' param_decl 
+		: param_decl { $$ = $1; } 
+		| param_list ',' param_decl { 
+			if($1&&$3) { $$ = $1; }
+			else { $$=NULL; } 
+		}
 
 param_decl  /* formal parameter declaration */
 		: type_specifier pointers ID {
@@ -345,7 +384,7 @@ def
 				$$ = NULL;
 			}
 			else if(!check_is_type($1)){
-				raise("not type"); // not the case here
+				debug("not type"); // not the case here
 				$$ = NULL;
 			}
 			else{
@@ -394,7 +433,7 @@ def
 		| func_decl ';' {}
 
 compound_stmt
-		: '{' local_defs stmt_list '}'
+		: '{' local_defs stmt_list '}' 
 
 local_defs  /* local definitions, of which scope is only inside of compound statement */
 		:	def_list 
@@ -404,12 +443,12 @@ stmt_list
 		| /* empty */ 
 
 stmt
-		: expr ';'
-		| compound_stmt
+		: expr ';' 
+		| { push_scope(); } compound_stmt { pop_scope(); }
 		| RETURN ';' {
 		// Return type compatibility check
 			ste *formals = pop_scope(); // get return type
-			if(formals==voidtype){
+			if(formals->decl==voidtype){
 				$$ = formals;
 			}
 			else{
@@ -767,7 +806,6 @@ unary
 					$$ = makevardecl($1->type->elementvar->type);
 				}
 				else{
-					raise("array index is not integer const"); // not the case here
 					$$ = NULL;
 				}
 			}
@@ -882,7 +920,10 @@ void 	REDUCE( char* s)
 
 void raise(char *message){
 	int lineno = read_line();
-	printf("%s:%d: error:%s\n",filename, lineno, message);
+	if(error_msg){
+		printf("%s:%d: error:%s\n",filename, lineno, message);
+		error_msg = 0;
+	}
 }
 
 void debug(char *message){
