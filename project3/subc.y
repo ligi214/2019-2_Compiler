@@ -154,7 +154,7 @@ struct_specifier
 						temp = temp->prev;
 					}
 					if(!temp){
-						debug("abnormal accident happened while defining struct"); // not the case
+						// debug("abnormal accident happened while defining struct"); // not the case
 					}
 					else{
 						symboltable = struct_ste->prev;
@@ -214,6 +214,7 @@ func_decl
 				}
 				ste *formals = pop_scope();
 				funcdecl->returntype = formals->decl;
+				returntype = formals->decl;
 				funcdecl->formals = NULL;
 				$<declptr>$ = funcdecl;
 				push_scope();
@@ -248,6 +249,7 @@ func_decl
 				}
 				ste *formals = pop_scope();
 				funcdecl->returntype = formals->decl;
+				returntype = formals->decl;
 				funcdecl->formals = NULL;
 				$<declptr>$ = funcdecl;
 				push_scope();
@@ -284,6 +286,7 @@ func_decl
 			if($6 && funcdecl){
 				ste *formals = pop_scope();
 				funcdecl->returntype = formals->decl;
+				returntype = formals->decl;
 				funcdecl->formals = copy_ste(formals->prev);
 				push_scope();
 				pushstelist(formals);
@@ -384,7 +387,7 @@ def
 				$$ = NULL;
 			}
 			else if(!check_is_type($1)){
-				debug("not type"); // not the case here
+				// debug("not type"); // not the case here
 				$$ = NULL;
 			}
 			else{
@@ -448,7 +451,8 @@ stmt
 		| RETURN ';' {
 		// Return type compatibility check
 			ste *formals = pop_scope(); // get return type
-			if(formals->decl==voidtype){
+			// if(formals->decl==voidtype){
+			if(returntype==voidtype){
 				$$ = formals;
 			}
 			else{
@@ -463,7 +467,7 @@ stmt
 			if(!$2) { $$ = NULL; }
 			else{
 				ste *formals = pop_scope();
-				if(check_sametype(formals->decl, $2->type)){
+				if(check_sametype(returntype, $2->type)){
 					$$ = formals;
 				}
 				else{
@@ -476,7 +480,9 @@ stmt
 		}
 		| ';'
 		| IF '(' expr ')' stmt
-		| IF '(' expr ')' stmt ELSE stmt
+		| IF '(' 
+		expr 
+		')' stmt ELSE stmt
 		| WHILE '(' expr ')' stmt
 		| FOR '(' expr_e ';' expr_e ';' expr_e ')' stmt
 		| BREAK ';'
@@ -498,7 +504,7 @@ expr
 			else if(check_is_var($1)){
 				if(check_sametype($1->type, $3->type)){
 					if(check_is_pointer_type($1->type)==0 && check_is_null_type($3->type)){
-						raise("RHS is not a constant or variable");
+						raise("RHS is not a const or variable");
 					}
 					else{
 						$$ = $1;

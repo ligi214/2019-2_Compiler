@@ -19,7 +19,12 @@ int foo(){
 	struct u xx; /* error : redeclaration */
 	{
 		int a;
+		char *b;
 		a = 5; 
+		a = NULL; /* error : LHS and RHS type */
+		b = NULL;
+		2 = NULL; /* error : LHS not var */
+		2++; /* error : not var */
 	}
 	goo(); /* error : not declared */
 	a = 'a'; /* error : not declared */
@@ -27,6 +32,8 @@ int foo(){
 	x = 'a'; /* error : LHS and RHS type */
 	y = 1; /* error : LHS and RHS type */
 	y = 'c';
+	2++; /* error : not computable */
+	'c'++; /* error : not computable */
 	return 1;
 	return 'c'; /* error : return type */
 	return NULL; /* error : return type */
@@ -77,3 +84,15 @@ int user_func(int a, char a){ /* error : redeclaration */
 	return 'c'; /* error : incompatible return types */
 }
 
+int aa(){
+	int *a;
+	user_func(1, 'c');
+	user_func(1);
+	user_func();
+	if(1){
+		return;
+	} else {
+		return 0;
+	}
+	return 0;
+}
