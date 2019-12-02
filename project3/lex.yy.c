@@ -2004,7 +2004,14 @@ int main(int argc, char* argv[])
 
 	if(argc >= 2) {
 		yyin = fopen(argv[1], "r");
-		filename = argv[1];
+		strcpy(filename, argv[1]);
+		char *token = strtok(filename, "/");
+		char *prev_token = NULL;
+		while(token){
+			prev_token = token;
+			token = strtok(NULL, "/");
+		}
+		strcpy(filename, prev_token);
 	}
 	else yyin = stdin;
 	if(!yyin) {

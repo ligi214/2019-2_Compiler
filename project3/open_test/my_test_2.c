@@ -66,3 +66,22 @@ int main(){
     return 1;
 }
 
+int foofoo(){
+	int x;
+	while(1){
+		if(1){
+			return 1;
+		} else {
+			return 0;
+		}
+		if(1){
+			if(2){
+				return 9;
+			}
+		}
+		break;
+	}
+	foofoo();
+	x = foofoo();
+	return 1;
+}

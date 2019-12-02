@@ -84,7 +84,7 @@ id* returnid;
 decl* returntype;
 
 int error_msg;
-char *filename;
+char filename[100];
 
 /* Defined in utils.c */
 ste *symboltable;

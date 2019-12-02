@@ -714,12 +714,14 @@ unary
 			else if(check_is_int_type($1->type) || check_is_char_type($1->type)){
 				if(check_is_const($1)){ raise("not computable"); $$=NULL; }
 				else if(check_is_int_type($1->type)){
-					$$ = $1;
+					$$ = copy_decl($1);
 					$$->int_value = $$->int_value + 1;
+					$$->declclass = _EXPR;
 				}
 				else if(check_is_char_type($1->type)){
-					$$ = $1;
+					$$ = copy_decl($1);
 					$$->char_value = $$->char_value + 1;
+					$$->declclass = _EXPR;
 				}
 			}
 			else{
@@ -732,12 +734,14 @@ unary
 			else if(check_is_int_type($1->type) || check_is_char_type($1->type)){
 				if(check_is_const($1)){ raise("not computable"); $$=NULL; }
 				else if(check_is_int_type($1->type)){
-					$$ = $1;
+					$$ = copy_decl($1);
 					$$->int_value = $$->int_value - 1;
+					$$->declclass = _EXPR;
 				}
 				else if(check_is_char_type($1->type)){
-					$$ = $1;
+					$$ = copy_decl($1);
 					$$->char_value = $$->char_value - 1;
+					$$->declclass = _EXPR;
 				}
 			}
 			else{
@@ -750,12 +754,14 @@ unary
 			else if(check_is_int_type($2->type) || check_is_char_type($2->type)){
 				if(check_is_const($2)){ raise("not computable"); $$=NULL; }
 				else if(check_is_int_type($2->type)){
-					$$ = $2;
+					$$ = copy_decl($2);
 					$$->int_value = $$->int_value + 1;
+					$$->declclass = _EXPR;
 				}
 				else if(check_is_char_type($2->type)){
-					$$ = $2;
+					$$ = copy_decl($2);
 					$$->char_value = $$->char_value + 1;
+					$$->declclass = _EXPR;
 				}
 			}
 			else{
@@ -768,12 +774,14 @@ unary
 			else if(check_is_int_type($2->type) || check_is_char_type($2->type)){
 				if(check_is_const($2)){ raise("not computable"); $$=NULL; }
 				else if(check_is_int_type($2->type)){
-					$$ = $2;
+					$$ = copy_decl($2);
 					$$->int_value = $$->int_value - 1;
+					$$->declclass = _EXPR;
 				}
 				else if(check_is_char_type($2->type)){
-					$$ = $2;
+					$$ = copy_decl($2);
 					$$->char_value = $$->char_value - 1;
+					$$->declclass = _EXPR;
 				}
 			}
 			else{
