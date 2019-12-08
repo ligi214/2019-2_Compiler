@@ -12,16 +12,37 @@ struct str2 {
 		int *i;
 		char *c;
 	} st;
+
+	struct str4{
+		int a;
+		char c;
+	} s;
+
+	struct str80{
+		struct str4 sss;
+		struct str90 {
+			int a;
+		};
+	};
 };
+
 
 struct str3 { /* error : redeclaration */
 	int *i;
 	char *c;
 };
 
+struct str5 {
+	struct str4 st;
+	struct str3 b;
+};
+
+
 int main(void) {
 	int i1;
 	char c1;
+	struct str80 b;
+	struct str90 bb;
 
 	struct str1 st1;
 	struct str2 st2;
