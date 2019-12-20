@@ -34,13 +34,15 @@ void	raise(char* message);
 %left		RELOP
 %left		'+' '-'
 %left		'*' '/' '%'
-%right		'!' INCOP DECOP UNARY_OP
+%right		'!' INCOP DECOP 
 %left 		STRUCTOP '[' ']' '(' ')' '.'
 
 /* Token and Types */
 %token<idptr>			TYPE VOID NULL_TOKEN 
 %token<idptr>			WRITE_INT WRITE_CHAR WRITE_STRING
-%token<idptr>			STRUCT RETURN IF ELSE WHILE FOR BREAK CONTINUE
+%token<idptr>			STRUCT RETURN WHILE FOR BREAK CONTINUE
+%nonassoc				IF
+%nonassoc				ELSE
 %token<intVal>			LOGICAL_OR LOGICAL_AND INCOP DECOP STRUCTOP
 %token<idptr>			ID
 %token<intVal>			INTEGER_CONST
@@ -49,7 +51,7 @@ void	raise(char* message);
 %token<intVal>			RELOP EQUOP
 
 %type<declptr>			program
-%type<declptr>			ext_def_list ext_def type_specifier struct_specifier
+%type<declptr>			ext_def_list ext_def type_specifier param_type_specifier struct_specifier
 %type<declptr>			func_decl
 %type<intVal>			pointers
 %type<declptr>			param_list param_decl
@@ -129,13 +131,7 @@ ext_def
 			codegen("pop_reg fp");
 			codegen("pop_reg pc");
 			fprintf(fp, "%s_end:\n", current_func_name);
-
-			printf("%s_final:\n", current_func_name); // debug
-			d_codegen("push_reg fp"); // debug
-			d_codegen("pop_reg sp"); // debug
-			d_codegen("pop_reg fp"); // debug
-			d_codegen("pop_reg pc"); // debug
-			printf("%s_end:\n", current_func_name); // debug
+			current_func_actuals_size = 0;
 			pop_scope();
 		}
 
@@ -177,7 +173,12 @@ struct_specifier
 						// debug("abnormal accident happened while defining struct"); // not the case
 					}
 					else{
-						symboltable = struct_ste->prev;
+						if(struct_ste->prev == globalscope->topste){
+							symboltable = struct_ste;
+						}
+						else{
+							symboltable = struct_ste->prev;
+						}
 						temp->prev = struct_ste;
 						struct_ste -> prev = globalscope->topste;
 						globalscope->topste = struct_ste;
@@ -207,7 +208,7 @@ struct_specifier
 		}
 
 func_decl
-		: type_specifier pointers ID '(' ')' {
+		: type_specifier pointers ID '(' {
 			decl *funcdecl = finddecl_in_current_scope($3);
 			if(funcdecl) { 
 				raise("redeclaration");
@@ -225,7 +226,6 @@ func_decl
 			}
 			else{
 				fprintf(fp, "%s:\n", $3->name);
-				printf("%s:\n", $3->name); // debug
 				funcdecl = makefuncdecl();
 				declare($3, funcdecl);
 				push_scope();
@@ -246,7 +246,11 @@ func_decl
 				current_func_decl = funcdecl;
 			}
 		}
-		| type_specifier pointers ID '(' VOID ')' {
+		')' {
+			$<declptr>$ = $<declptr>5;
+			current_func_actuals_size = 0;
+		}
+		| type_specifier pointers ID '(' {
 			decl *funcdecl = finddecl_in_current_scope($3);
 			if(funcdecl){
 				raise("redeclaration");
@@ -264,7 +268,6 @@ func_decl
 			}
 			else{
 				fprintf(fp, "%s:\n", $3->name);
-				printf("%s:\n", $3->name); // debug
 				funcdecl = makefuncdecl();
 				declare($3, funcdecl);
 				push_scope();
@@ -284,6 +287,10 @@ func_decl
 				current_func_name = $3->name;
 				current_func_decl = funcdecl;
 			}
+		}
+		VOID ')' {
+			$<declptr>$ = $<declptr>5;
+			current_func_actuals_size = 0;
 		}
 		| type_specifier pointers ID '(' {
 			decl *funcdecl = finddecl_in_current_scope($3);
@@ -310,13 +317,13 @@ func_decl
 				$<declptr>$ = funcdecl;
 				current_func_name = $3->name;
 				current_func_decl = funcdecl;
+				current_func_actuals_size = 0;
 			}
 		}
 		param_list ')' {
 			decl *funcdecl = $<declptr>5;
 			if($6 && funcdecl){
 				fprintf(fp, "%s:\n", $3->name);
-				printf("%s:\n", $3->name); // debug
 				ste *formals = pop_scope();
 				funcdecl->returntype = formals->decl;
 				returntype = formals->decl;
@@ -355,8 +362,17 @@ param_list  /* list of formal parameter declaration */
 			else { $$=NULL; } 
 		}
 
+param_type_specifier
+		: TYPE {
+			decl *typedecl = findcurrentdecl($1);
+			$$ = typedecl;
+		}
+		| struct_specifier {
+			$$ = $1;
+		}
+
 param_decl  /* formal parameter declaration */
-		: type_specifier pointers ID {
+		: param_type_specifier pointers ID {
 			if(!$1 || !$3) { $$ = NULL; }
 			else if($2) { 
 				decl *paramdecl = finddecl_in_current_scope($3);
@@ -368,6 +384,7 @@ param_decl  /* formal parameter declaration */
 					decl *vardecl = makevardecl(makeptrdecl($1));
 					vardecl->is_param = 1;
 					declare($3, vardecl);
+					current_func_actuals_size++;
 				}
 			}
 			else {
@@ -380,10 +397,11 @@ param_decl  /* formal parameter declaration */
 					decl *vardecl = makevardecl($1);
 					vardecl->is_param = 1;
 					declare($3, vardecl);
+					current_func_actuals_size += (vardecl->size);
 				}
 			}
 		}
-		| type_specifier pointers ID '[' const_expr ']' {
+		| param_type_specifier pointers ID '[' const_expr ']' {
 			if(!$1 || !$3 || !$5) { $$ = NULL; }
 			else if($2) {
 				decl *paramdecl = finddecl_in_current_scope($3);
@@ -399,6 +417,7 @@ param_decl  /* formal parameter declaration */
 					decl *constdecl = makeconstdecl(makearraydecl($5->int_value,makevardecl(makeptrdecl($1))));
 					constdecl->is_param = 1;
 					declare($3, constdecl);
+					current_func_actuals_size += (constdecl->size);
 				}
 			}
 			else {
@@ -415,6 +434,7 @@ param_decl  /* formal parameter declaration */
 					decl *constdecl = makeconstdecl(makearraydecl($5->int_value, makevardecl($1)));
 					constdecl->is_param = 1;
 					declare($3, constdecl);
+					current_func_actuals_size += (constdecl->size);
 				}
 			}
 		}
@@ -482,10 +502,8 @@ func_compound_stmt
 		: '{' local_defs {
 			if(scopestack->size>0){
 				fprintf(fp, "\tshift_sp %d\n", scopestack->size);
-				printf("\tshift_sp %d\n", scopestack->size); // debug
 			}
 			fprintf(fp, "%s_start:\n", current_func_name);
-			printf("%s_start:\n", current_func_name); // debug
 		}
 		stmt_list '}' 
 
@@ -496,19 +514,23 @@ local_defs  /* local definitions, of which scope is only inside of compound stat
 		:	def_list 
 
 stmt_list
-		: stmt_list stmt 
-		| /* empty */ 
+		: stmt_list stmt { $$ = NULL; }
+		| /* empty */  { $$ = NULL; }
 
 stmt
 		: expr ';' {
 			if($1){
 				if($1->size > 0){
-					fprintf(fp, "\tshift_sp -%d\n", $1->size);
-					printf("\tshift_sp -%d\n", $1->size); // debug
+					if(assign){
+						fprintf(fp, "\tshift_sp -%d\n", $1->size+2);
+						assign = 0;
+					}
+					else{
+						fprintf(fp, "\tshift_sp -%d\n", $1->size);
+					}
 				}
 				else{
 					fprintf(fp, "\tshift_sp -1\n");
-					printf("\tshift_sp -1\n"); // debug
 				}
 			}
 		}
@@ -527,33 +549,48 @@ stmt
 			push_scope();
 			pushstelist(formals);
 			fprintf(fp, "\tjump %s_final\n", current_func_name);
-			printf("\tjump %s_final\n", current_func_name); // debug
 		}
 		| RETURN {
 			int func_return_size = current_func_decl->returntype->size;
+			returning = 1;
+			return_size = func_return_size;
 			codegen("push_reg fp");
 			codegen("push_const -1");
 			codegen("add");
 			fprintf(fp, "\tpush_const -%d\n", func_return_size);
 			codegen("add");
-
-			d_codegen("push_reg fp"); // debug
-			d_codegen("push_const -1"); // debug
-			d_codegen("add"); // debug
-			printf("\tpush_const -%d\n", func_return_size); // debug
-			d_codegen("add"); // debug
+			codegen("push_reg sp");
+			codegen("fetch");
 		}
 		expr ';' {
 			// Return type compatibility check
 			if(!$3) { $$ = NULL; }
 			else{
+				int offset;
 				ste *formals = pop_scope();
 				if(check_sametype(returntype, $3->type)){
 					$$ = formals->decl;
 					codegen("assign");
+					return_size--;
+					while(return_size > 0){
+						// codegen("push_reg sp");
+						// codegen("fetch");
+						codegen("push_const 1");
+						codegen("add");
+						codegen("push_reg sp");
+						codegen("fetch");
+						codegen("push_reg fp");
+						if($3->is_param==0) offset = $3->offset+current_func_actuals_size+$3->size-return_size;
+						else offset = $3->offset + $3->size - return_size;
+						if(offset != 0){
+							fprintf(fp, "\tpush_const %d\n", offset);
+							codegen("add");
+						}
+						codegen("fetch");
+						codegen("assign");
+						return_size--;
+					}
 					fprintf(fp, "\tjump %s_final\n", current_func_name);
-					d_codegen("assign"); // debug
-					printf("\tjump %s_final\n", current_func_name); // debug
 				}
 				else{
 					raise("incompatible return types");
@@ -561,33 +598,103 @@ stmt
 				}
 				push_scope();
 				pushstelist(formals);
+				returning = 0;
 			}
 		}
 		| ';'
-		| IF '(' expr ')' stmt
-		| IF '(' 
-		expr 
-		')' stmt ELSE stmt
-		| WHILE '(' expr ')' stmt
-		| FOR '(' expr_e ';' expr_e ';' expr_e ')' stmt
-		| BREAK ';'
-		| CONTINUE ';'
+		| before_if IF '(' expr ')' after_if stmt {
+			int not_label = $<intVal>6;
+			fprintf(fp, "label_%d:\n", not_label);
+		}
+		| before_if IF '(' expr ')' after_if  stmt ELSE {
+			int else_label = $<intVal>6;
+			int if_end = else_label + 1;
+			fprintf(fp, "\tjump label_%d\n", if_end);
+			fprintf(fp, "label_%d:\n", else_label);
+			$<intVal>$ = if_end;
+		}
+		stmt{
+			int if_end = $<intVal>9;
+			fprintf(fp, "label_%d:\n", if_end);
+			label_index++;
+		}
+		| {
+			$<intVal>$ = while_end;
+		} WHILE {
+			while_cond = label_index++;
+			while_end = label_index++;
+			break_label = while_end;
+			continue_label = while_cond;
+			fprintf(fp, "label_%d:\n", while_cond);
+			$<intVal>$ = while_end;
+		} '(' expr ')'{
+			fprintf(fp, "\tbranch_false label_%d\n", while_end);
+		} stmt{
+			while_end = $<intVal>3;
+			while_cond = while_end - 1;
+			fprintf(fp, "\tjump label_%d\n", while_cond);
+			fprintf(fp, "label_%d:\n", while_end);
+			break_label = $<intVal>1;
+			continue_label = break_label - 1;
+		}
+		| FOR {
+			for_init = label_index++;
+			for_cond = label_index++;
+			for_update = label_index++;
+			for_internal = label_index++;
+			for_end = label_index++;
+			break_label = for_end;
+			continue_label = for_update;
+			fprintf(fp, "label_%d:\n", for_init);
+		} '(' expr_e ';' {
+			fprintf(fp, "label_%d:\n", for_cond);
+		} expr_e ';' {
+			fprintf(fp, "\tbranch_false label_%d\n", for_end);
+			fprintf(fp, "\tjump label_%d\n", for_internal);
+			fprintf(fp, "label_%d:\n", for_update);
+		} expr_e ')' {
+			fprintf(fp, "\tjump label_%d\n", for_cond);
+			fprintf(fp, "label_%d:\n", for_internal);
+		} stmt {
+			fprintf(fp, "\tjump label_%d\n", for_update);
+			fprintf(fp, "label_%d:\n", for_end);
+		}
+		| BREAK ';' {
+			fprintf(fp, "\tjump label_%d\n", break_label);
+		}
+		| CONTINUE ';' {
+			fprintf(fp, "\tjump label_%d\n", continue_label);
+		}
 		| WRITE_INT '(' expr ')'{
 			codegen("write_int");
-			d_codegen("write_int"); // debug
 		}
 		| WRITE_CHAR '(' expr ')'{
 			codegen("write_char");
-			d_codegen("write_char"); // debug
 		}
 		| WRITE_STRING '(' expr ')'{
 			codegen("write_string");
-			d_codegen("write_string"); // debug
+		}
+
+before_if
+		: /* empty */ {
+			//fprintf(fp, "label_%d:\n", label_index);
+			//label_index++;
+		}
+
+after_if
+		: /* empty */ {
+			int not_label = label_index++;
+			label_index++; // for if_end label
+			fprintf(fp, "\tbranch_false label_%d\n", not_label);
+			$<intVal>$ = not_label;
 		}
 
 expr_e
 		: expr { $$ = $1; }
-		| /* empty */
+		| /* empty */ { 
+			codegen("push_const 1");
+			$$ = NULL;
+		}
 
 const_expr
 		: INTEGER_CONST {
@@ -596,10 +703,9 @@ const_expr
 
 expr
 		: unary{
+			assign = 1;
 			codegen("push_reg sp");
 			codegen("fetch");
-			d_codegen("push_reg sp"); // debug
-			d_codegen("fetch"); // debug
 		}
 		'=' expr {
 			// check if unary is declared (if not, not declared error) :done in  unary : ID
@@ -613,11 +719,44 @@ expr
 						raise("RHS is not a const or variable");
 					}
 					else{
-						$$ = $1;
-						codegen("assign");
-						codegen("fetch");
-						d_codegen("assign"); // debug
-						d_codegen("fetch"); // debug
+						unary_size_while_assign = $1->size;
+						if(unary_size_while_assign==1){
+							codegen("assign");
+							codegen("fetch");
+							unary_size_while_assign--;
+						}
+						else{
+							codegen("push_reg sp");
+							fprintf(fp, "\tpush_const -%d\n", unary_size_while_assign+1);
+							codegen("add");
+							codegen("fetch");
+							codegen("push_reg sp");
+							codegen("fetch");
+							codegen("push_reg sp");
+							codegen("push_const -1");
+							codegen("add");
+							fprintf(fp, "\tpush_const -%d\n", unary_size_while_assign);
+							codegen("add");
+							codegen("fetch");
+							codegen("assign");
+							unary_size_while_assign--;
+							while(unary_size_while_assign > 0){
+								codegen("push_const 1");
+								codegen("add");
+								codegen("push_reg sp");
+								codegen("fetch");
+								codegen("push_reg sp");
+								codegen("push_const -1");
+								codegen("add");
+								fprintf(fp, "\tpush_const -%d\n", unary_size_while_assign);
+								codegen("add");
+								codegen("fetch");
+								codegen("assign");
+								unary_size_while_assign--;
+							}
+						}
+						$$ = copy_decl($1);
+						$1->type->offset = $4->offset;
 					}
 				}
 				else{
@@ -629,6 +768,7 @@ expr
 				raise("LHS is not a variable");
 				$$ = NULL;
 			}
+			assign = 0;
 		}
 		| or_expr { $$ = $1; }
 
@@ -649,7 +789,6 @@ or_list
 						$$->declclass = _EXPR;
 					}
 					codegen("or");
-					d_codegen("or");
 				}
 				else{
 					raise("not computable");
@@ -676,7 +815,6 @@ and_list
 						$$->declclass = _EXPR;
 					}
 					codegen("and");
-					d_codegen("and");
 				}
 				else{
 					raise("not computable");
@@ -703,19 +841,15 @@ binary
 				}
 				if($2==_LT){
 					codegen("less");
-					d_codegen("less");
 				}
 				else if($2==_LTE){
 					codegen("less_equal"); 
-					d_codegen("less_equal"); 
 				}
 				else if($2==_GT){
 					codegen("greater"); 
-					d_codegen("greater"); 
 				}
 				else if($2==_GTE){ 
 					codegen("greater_equal"); 
-					d_codegen("greater_equal"); 
 				}
 			}
 			else{
@@ -737,11 +871,9 @@ binary
 				}
 				if($2==_EQ) { 
 					codegen("equal"); 
-					d_codegen("equal");  // debug
 				}
 				else if($2==_NEQ) { 
 					codegen("not_equal"); 
-					d_codegen("not_equal"); //debug
 				}
 			}
 			else{
@@ -760,7 +892,6 @@ binary
 					$$->declclass = _EXPR;
 				}
 				codegen("add");
-				d_codegen("add"); // debug
 			}
 			else{
 				raise("not computable");
@@ -778,7 +909,6 @@ binary
 					$$->declclass = _EXPR;
 				}
 				codegen("sub");
-				d_codegen("sub"); // debug
 			}
 			else{
 				raise("not computable");
@@ -800,20 +930,16 @@ unary
 		| INTEGER_CONST {
 			$$ = makenumconstdecl(inttype, $1);
 			// fprintf(fp, "\tpush_const %d\n", $1);
-			// printf("\tpush_const %d\n", $1); // debug
 		}
 		| CHAR_CONST {
 			$$ = makecharconstdecl(chartype, $1);
 			// fprintf(fp, "\tpush_const %d\n", $1);
-			// printf("\tpush_const %d\n", $1); // debug
 		}
 		| STRING {
 			$$ = makevardecl(makeptrdecl(chartype));
 			$$->declclass = _EXPR;
 			fprintf(fp, "str_%d. string %s\n", str_index, $1);
 			fprintf(fp, "\tpush_const str_%d\n", str_index);
-			printf("str_%d. string %s\n", str_index, $1); // debug
-			printf("\tpush_const str_%d\n", str_index); // debug
 			str_index++;
 		}
 		| NULL_TOKEN {
@@ -832,6 +958,9 @@ unary
 				else if(iddecl->declclass == _CONST && iddecl->type->typeclass == _ARRAY){
 					print_get_array_addr(iddecl);
 				}
+				else if(check_is_func_type(iddecl)){
+					func_return_size = iddecl->returntype->size;
+				}
 			}
 			else{
 				raise("not declared");
@@ -845,10 +974,11 @@ unary
 				if(check_is_const($2)){
 					$$->int_value = -($2->int_value);
 				}
-				else{ $$->declclass = _EXPR; }
-				print_get_unary_val($2);
-				codegen("negate");
-				d_codegen("negate"); // debug
+				else{
+					$$->declclass = _EXPR;
+					print_get_unary_val($2);
+					codegen("negate");
+				}
 			}
 			else{
 				raise("not computable");
@@ -867,7 +997,6 @@ unary
 				}
 				print_get_unary_val($2);
 				codegen("not");
-				d_codegen("not"); // debug
 			}
 			else{
 				raise("not computable");
@@ -964,6 +1093,8 @@ unary
 				// make pointer declaration with the given type
 				// return type to _EXPR
 				$$ = makevardecl(makeptrdecl($2->type));
+				$$->type->offset = $2->offset;
+				$$->offset = $2->offset;
 				$$->declclass = _EXPR;
 			}
 			else{
@@ -976,7 +1107,8 @@ unary
 			if(!$2){ $$ = NULL; }
 			else if(check_is_pointer_type($2->type)){
 				$$ = makevardecl($2->type->ptrto);
-				print_get_unary_val($2);
+				$$->offset = $2->type->offset;
+				if($2->declclass!=_EXPR) codegen("fetch");
 			}
 			else{
 				raise("not a pointer");
@@ -991,11 +1123,8 @@ unary
 					if($1->type->elementvar->size != 1){
 						fprintf(fp, "\tpush_const %d\n", $1->type->elementvar->size);
 						codegen("mul");
-						printf("\tpush_const %d\n", $1->type->elementvar->size); // debug
-						d_codegen("mul"); // debug
 					}
 					codegen("add");
-					d_codegen("add"); // debug
 				}
 				else{
 					$$ = NULL;
@@ -1016,11 +1145,15 @@ unary
 				}
 				else{
 					$$ = makevardecl(temp->type);
+					$$->type = $1->type;
+					if($1->type == _EXPR){
+						codegen("push_reg sp");
+						code
+						fprintf(fp,);
+					}
 					if(temp->offset > 0){
 						fprintf(fp, "\tpush_const %d\n", temp->offset);
 						codegen("add");
-						printf("\tpush_const %d\n", temp->offset); // debug
-						d_codegen("add"); // debug
 					}
 				}
 			}
@@ -1038,14 +1171,10 @@ unary
 					$$ = NULL;
 				}
 				else{
+					if(check_is_var($1)) codegen("fetch");
 					$$ = makevardecl(temp->type);
-					codegen("fetch");
-					fprintf(fp, "\tpush_const %d\n", $$->offset);
+					fprintf(fp, "\tpush_const %d\n", temp->offset);
 					codegen("add");
-
-					d_codegen("fetch"); // debug
-					printf(fp, "\tpush_const %d\n", $$->offset); // debug
-					d_codegen("add"); // debug
 				}
 			}
 			else{
@@ -1053,21 +1182,7 @@ unary
 				$$ = NULL;
 			}
 		}
-		| unary{
-			if($1->returntype->size > 0){
-				fprintf(fp, "\tshift_sp %d\n", $1->returntype->size);
-				printf("\tshift_sp %d\n", $1->returntype->size); // debug
-			}
-			else{
-				codegen("shift_sp 1"); // for safety zone
-				d_codegen("shift_sp 1"); // debug
-			}
-			fprintf(fp, "\tpush_const label_%d\n", label_index);
-			codegen("push_reg fp");
-			printf("\tpush_const label_%d\n", label_index); // debug
-			d_codegen("push_reg fp"); // debug
-		}
-		'(' args ')'{
+		| unary '(' while_func_call args ')'{
 			if(!$1 || !$4){ $$ = NULL; }
 			else if(check_is_func_type($1)){
 				decl *temp = check_function_call($1, $4);
@@ -1094,38 +1209,18 @@ unary
 					temp = temp->prev;
 				}
 				codegen("push_reg sp");
-				d_codegen("push_reg sp"); // debug
 				if(actual_size > 0){
 					fprintf(fp, "\tpush_const -%d\n", actual_size);
 					codegen("add");
-					printf("\tpush_const -%d\n", actual_size); // debug
-					d_codegen("add"); // debug
 				}
 				codegen("pop_reg fp");
-				d_codegen("pop_reg fp"); // debug
 				char* name = findid($1)->name;
 				fprintf(fp, "\tjump %s\n", name);
-				fprintf(fp, "label_%d:\n", label_index);
-				printf("\tjump %s\n", name); // debug
-				printf("label_%d:\n", label_index); // debug
+				fprintf(fp, "label_%d:\n", $<intVal>3);
 				label_index++;
 			}
 		}
-		| unary{
-			if($1->returntype->size > 0){
-				fprintf(fp, "\tshift_sp %d\n", $1->returntype->size);
-				printf("\tshift_sp %d\n", $1->returntype->size); // debug
-			}
-			else{
-				codegen("shift_sp 1"); // for safety zone
-				d_codegen("shift_sp 1"); // debug
-			}
-			fprintf(fp, "\tpush_const label_%d\n", label_index);
-			codegen("push_reg fp");
-			printf("\tpush_const label_%d\n", label_index); // debug
-			d_codegen("push_reg fp"); // debug
-		}
-		'(' ')'{
+		| unary '(' while_func_call ')'{
 			if(!$1){ $$ = NULL; }
 			else if(check_is_func_type($1)){
 				decl *temp = check_function_call($1, NULL);
@@ -1147,15 +1242,24 @@ unary
 			if($$){
 				codegen("push_reg sp");
 				codegen("pop_reg fp");
-				d_codegen("push_reg sp"); // debug
-				d_codegen("pop_reg fp"); // debug
 				char* name = findid($1)->name;
 				fprintf(fp, "\tjump %s\n", name);
-				fprintf(fp, "label_%d:\n", label_index);
-				printf("\tjump %s\n", name); // debug
-				printf("label_%d:\n", label_index); // debug
+				fprintf(fp, "label_%d:\n", $<intVal>3);
 				label_index++;
 			}
+		}
+
+while_func_call
+		: /* empty */ {
+			if(func_return_size > 0){
+				fprintf(fp, "\tshift_sp %d\n", func_return_size);
+			}
+			else{
+				codegen("shift_sp 1"); // for safety zone
+			}
+			fprintf(fp, "\tpush_const label_%d\n", label_index++);
+			codegen("push_reg fp");
+			$<intVal>$ = label_index-1;
 		}
 
 args    /* actual parameters(function arguments) transferred to function */

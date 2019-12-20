@@ -53,6 +53,7 @@ void push_scope(){
 	if(!scopestack) { temp->topste = NULL; }
 	else { temp->topste = scopestack->topste; }
 	scopestack = temp;
+	scope_num++;
 }
 
 ste* pop_scope(){
@@ -89,6 +90,7 @@ ste* pop_scope(){
 	if(!bottom) { return NULL; }
 	top->prev = NULL;
 	symboltable = prev->topste;
+	scope_num--;
 	return bottom;
 }
 

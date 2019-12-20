@@ -860,10 +860,10 @@ case 11:
 YY_RULE_SETUP
 #line 58 "subc.l"
 {
-				if(strcmp(yytext, "<"))		{ yylval.intVal = _LT; }
-				if(strcmp(yytext, "<="))	{ yylval.intVal = _LTE; }
-				if(strcmp(yytext, ">"))		{ yylval.intVal = _GT; }
-				if(strcmp(yytext, ">="))	{ yylval.intVal = _GTE; }
+				if(!strcmp(yytext, "<"))	{ yylval.intVal = _LT; }
+				if(!strcmp(yytext, "<="))	{ yylval.intVal = _LTE; }
+				if(!strcmp(yytext, ">"))	{ yylval.intVal = _GT; }
+				if(!strcmp(yytext, ">="))	{ yylval.intVal = _GTE; }
 				return RELOP;
 				}
 	YY_BREAK
@@ -873,8 +873,8 @@ case 13:
 YY_RULE_SETUP
 #line 67 "subc.l"
 {
-				if(strcmp(yytext, "=="))	{ yylval.intVal = _EQ; }
-				if(strcmp(yytext, "!="))	{ yylval.intVal = _NEQ; }
+				if(!strcmp(yytext, "=="))	{ yylval.intVal = _EQ; }
+				if(!strcmp(yytext, "!="))	{ yylval.intVal = _NEQ; }
 				return EQUOP;
 				}
 	YY_BREAK
@@ -1976,6 +1976,7 @@ int read_line(){
 }
 
 void init_type(){
+	scope_num = 0;
 	error_msg = 1;
 	str_index = 0;
 	label_index = 0;

@@ -5,29 +5,8 @@
 	jump main
 EXIT:
 	exit
-test:
-test_start:
-	push_reg fp
-	push_const -1
-	add
-	push_const -1
-	add
-	push_reg sp
-	fetch
-	push_reg fp
-	push_const 1
-	add
-	fetch
-	assign
-	jump test_final
-test_final:
-	push_reg fp
-	pop_reg sp
-	pop_reg fp
-	pop_reg pc
-test_end:
 main:
-	shift_sp 4
+	shift_sp 3
 main_start:
 	push_reg fp
 	push_const 1
@@ -48,23 +27,6 @@ main_start:
 	fetch
 	shift_sp -1
 	push_reg fp
-	push_const 3
-	add
-	push_reg sp
-	fetch
-	push_const 3
-	assign
-	fetch
-	shift_sp -1
-	push_reg fp
-	push_const 4
-	add
-	push_reg sp
-	fetch
-	shift_sp 1
-	push_const label_0
-	push_reg fp
-	push_reg fp
 	push_const 1
 	add
 	fetch
@@ -72,21 +34,31 @@ main_start:
 	push_const 2
 	add
 	fetch
+	equal
+	branch_false label_0
 	push_reg fp
 	push_const 3
 	add
-	fetch
 	push_reg sp
-	push_const -3
-	add
-	pop_reg fp
-	jump test
-label_0:
+	fetch
+	push_const 1
 	assign
 	fetch
 	shift_sp -1
+	jump label_1
+label_0:
 	push_reg fp
-	push_const 4
+	push_const 3
+	add
+	push_reg sp
+	fetch
+	push_const 0
+	assign
+	fetch
+	shift_sp -1
+label_1:
+	push_reg fp
+	push_const 3
 	add
 	fetch
 	write_int

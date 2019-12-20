@@ -52,26 +52,25 @@ extern int yydebug;
     RELOP = 262,
     INCOP = 263,
     DECOP = 264,
-    UNARY_OP = 265,
-    STRUCTOP = 266,
-    TYPE = 267,
-    VOID = 268,
-    NULL_TOKEN = 269,
-    WRITE_INT = 270,
-    WRITE_CHAR = 271,
-    WRITE_STRING = 272,
-    STRUCT = 273,
-    RETURN = 274,
-    IF = 275,
-    ELSE = 276,
-    WHILE = 277,
-    FOR = 278,
-    BREAK = 279,
-    CONTINUE = 280,
-    ID = 281,
-    INTEGER_CONST = 282,
-    CHAR_CONST = 283,
-    STRING = 284
+    STRUCTOP = 265,
+    TYPE = 266,
+    VOID = 267,
+    NULL_TOKEN = 268,
+    WRITE_INT = 269,
+    WRITE_CHAR = 270,
+    WRITE_STRING = 271,
+    STRUCT = 272,
+    RETURN = 273,
+    WHILE = 274,
+    FOR = 275,
+    BREAK = 276,
+    CONTINUE = 277,
+    IF = 278,
+    ELSE = 279,
+    ID = 280,
+    INTEGER_CONST = 281,
+    CHAR_CONST = 282,
+    STRING = 283
   };
 #endif
 
@@ -89,7 +88,7 @@ union YYSTYPE
 	struct decl *declptr;
 	struct ste *steptr;
 
-#line 93 "subc.tab.h" /* yacc.c:1909  */
+#line 92 "subc.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

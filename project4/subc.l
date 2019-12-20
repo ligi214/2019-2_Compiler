@@ -56,17 +56,17 @@ unary-op	"!"|"+"|"-"|"*"|"/"|"%"|"&"|"="|"("|")"|"["|"]"|"{"|"}"|"."
 "<=" |
 ">" |
 ">="			{
-				if(strcmp(yytext, "<"))		{ yylval.intVal = _LT; }
-				if(strcmp(yytext, "<="))	{ yylval.intVal = _LTE; }
-				if(strcmp(yytext, ">"))		{ yylval.intVal = _GT; }
-				if(strcmp(yytext, ">="))	{ yylval.intVal = _GTE; }
+				if(!strcmp(yytext, "<"))	{ yylval.intVal = _LT; }
+				if(!strcmp(yytext, "<="))	{ yylval.intVal = _LTE; }
+				if(!strcmp(yytext, ">"))	{ yylval.intVal = _GT; }
+				if(!strcmp(yytext, ">="))	{ yylval.intVal = _GTE; }
 				return RELOP;
 				}
 
 "==" |
 "!="			{
-				if(strcmp(yytext, "=="))	{ yylval.intVal = _EQ; }
-				if(strcmp(yytext, "!="))	{ yylval.intVal = _NEQ; }
+				if(!strcmp(yytext, "=="))	{ yylval.intVal = _EQ; }
+				if(!strcmp(yytext, "!="))	{ yylval.intVal = _NEQ; }
 				return EQUOP;
 				}
 
@@ -116,6 +116,7 @@ int read_line(){
 }
 
 void init_type(){
+	scope_num = 0;
 	error_msg = 1;
 	str_index = 0;
 	label_index = 0;

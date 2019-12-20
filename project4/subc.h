@@ -42,6 +42,8 @@
 #define _POINTER	6
 #define _NULL		7
 
+int scope_num;
+
 typedef struct id {
 	char *name;
 	int tokenType;
@@ -93,12 +95,30 @@ char filename[100];
 char fname[100];
 FILE* fp;
 int isStruct;
+int func_return_size;
 
 int str_index;
 int label_index;
 int local_offset;
+int current_func_actuals_size;
 char* current_func_name;
 decl* current_func_decl;
+int assign;
+int unary_size_while_assign;
+int returning;
+int return_size;
+
+int for_init;
+int for_cond;
+int for_update;
+int for_internal;
+int for_end;
+
+int while_cond;
+int while_end;
+
+int break_label;
+int continue_label;
 
 /* Defined in utils.c */
 ste *symboltable;
@@ -169,6 +189,7 @@ void debug(char *message);
 void print_init();
 void print_globals();
 void print_get_var_addr(decl* vardecl);
+void print_get_array_addr(decl* arrdecl);
 void print_get_unary_val(decl* vardecl);
 void print_INC_DEC(decl* vardecl, int INC, int prefix);
 
