@@ -1,3 +1,4 @@
+	shift_sp 1
 	push_const EXIT
 	push_reg fp
 	push_reg sp
@@ -108,14 +109,14 @@ label_0:
 str_3. string "\n"
 	push_const str_3
 	write_string
-label_4:
+label_2:
 	push_reg fp
 	push_const 1
 	add
 	fetch
 	push_const 10
 	less
-	branch_false label_5
+	branch_false label_3
 	push_reg fp
 	push_const 1
 	add
@@ -139,9 +140,9 @@ str_4. string " "
 	push_const 1
 	sub
 	shift_sp -1
-label_6:
+label_4:
 	push_const 1
-	branch_false label_7
+	branch_false label_5
 	push_reg fp
 	push_const 1
 	add
@@ -178,22 +179,22 @@ label_6:
 	fetch
 	push_const 3
 	greater
-	branch_false label_8
-	jump label_7
-label_8:
-	jump label_6
-label_7:
+	branch_false label_6
+	jump label_5
+label_6:
+	jump label_4
+label_5:
 	push_reg fp
 	push_const 1
 	add
 	fetch
 	push_const 8
 	greater
-	branch_false label_10
-	jump label_5
-label_10:
-	jump label_4
-label_5:
+	branch_false label_8
+	jump label_3
+label_8:
+	jump label_2
+label_3:
 	push_reg fp
 	push_const 2
 	add

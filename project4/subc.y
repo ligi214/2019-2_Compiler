@@ -153,26 +153,27 @@ struct_specifier
 			decl *structdecl = findcurrentdecl($2);
 			if(structdecl){
 				raise("redeclaration");
+				$<intVal>$ = 0;
+			}
+			else{
+				$<intVal>$ = 1;
 			}
 			push_scope();
 			isStruct++;
 		}
 		def_list '}' {
 			ste *fields = pop_scope();
-			decl *structdecl = findcurrentdecl($2);
-			if(!structdecl){
-				structdecl = makestructdecl(fields);
+
+			if($<intVal>4){
+				decl* structdecl = makestructdecl(fields);
 				declare($2, structdecl);
 				if(scopestack != globalscope){
-					ste *struct_ste = symboltable;
-					ste *temp = symboltable;
+					ste* struct_ste = symboltable;
+					ste* temp = symboltable;
 					while(temp && temp->prev!=globalscope->topste){
 						temp = temp->prev;
 					}
-					if(!temp){
-						// debug("abnormal accident happened while defining struct"); // not the case
-					}
-					else{
+					if(temp){
 						if(struct_ste->prev == globalscope->topste){
 							symboltable = struct_ste;
 						}
@@ -181,13 +182,21 @@ struct_specifier
 						}
 						temp->prev = struct_ste;
 						struct_ste -> prev = globalscope->topste;
-						globalscope->topste = struct_ste;
+						scope* tempscope = scopestack;
+						while(tempscope){
+							if(tempscope->topste = globalscope->topste){
+								tempscope->topste = struct_ste;
+							}
+							tempscope = tempscope->prev;
+						}
+						// globalscope->topste = struct_ste;
 						structdecl->scope = globalscope;
 						scopestack->topste = symboltable;
 					}
 				}
+				$$ = structdecl;
 			}
-			$$ = structdecl;
+			else $$ = NULL;
 			isStruct--;
 		}
 		| STRUCT ID {
@@ -954,6 +963,7 @@ unary
 				char *s = $1->name;
 				if(iddecl->declclass == _VAR){
 					print_get_var_addr(iddecl);
+					$$->expanded = 0;
 				}
 				else if(iddecl->declclass == _CONST && iddecl->type->typeclass == _ARRAY){
 					print_get_array_addr(iddecl);
@@ -1125,6 +1135,7 @@ unary
 						codegen("mul");
 					}
 					codegen("add");
+					$$->expanded = 0;
 				}
 				else{
 					$$ = NULL;
@@ -1144,16 +1155,40 @@ unary
 					$$ = NULL;
 				}
 				else{
-					$$ = makevardecl(temp->type);
-					$$->type = $1->type;
-					if($1->type == _EXPR){
+					if($1->expanded){
+						$$ = makevardecl(temp->type);
+						$$->declclass = $1->declclass;
+						$$->expanded = 1;
+						int struct_size = $1->size;
+						int offset = temp->offset;
+						int id_size = temp->size;
 						codegen("push_reg sp");
-						code
-						fprintf(fp,);
-					}
-					if(temp->offset > 0){
-						fprintf(fp, "\tpush_const %d\n", temp->offset);
+						fprintf(fp, "\tpush_const -%d\n", struct_size-1);
 						codegen("add");
+						for(int i=0;i<id_size;i++){
+							codegen("push_reg sp");
+							codegen("fetch");
+							codegen("push_reg sp");
+							codegen("fetch");
+							if(offset+i > 0){
+								fprintf(fp, "\tpush_const %d\n", offset);
+								codegen("add");
+							}
+							codegen("fetch");
+							codegen("assign");
+							codegen("push_const 1");
+							codegen("add");
+						}
+						fprintf(fp, "\tshift_sp -%d\n", struct_size-id_size+1);
+					}
+					else{
+						$$ = makevardecl(temp->type);
+						$$->declclass = $1->declclass;
+						$$->expanded = 0;
+						if(temp->offset > 0){
+							fprintf(fp, "\tpush_const %d\n", temp->offset);
+							codegen("add");
+						}
 					}
 				}
 			}
@@ -1173,6 +1208,7 @@ unary
 				else{
 					if(check_is_var($1)) codegen("fetch");
 					$$ = makevardecl(temp->type);
+					if(check_is_struct_type(temp->type)) $$->expanded = 0;
 					fprintf(fp, "\tpush_const %d\n", temp->offset);
 					codegen("add");
 				}
@@ -1191,6 +1227,25 @@ unary
 					temp->declclass = _EXPR;
 					temp->size = temp->type->size;
 					$$ = temp;
+					if(check_is_struct_type(temp->type)) $$->expanded = 1;
+
+					int actual_size = 0;
+					ste* temp = $1->formals;
+					while(temp){
+						actual_size += temp->decl->size;
+						temp = temp->prev;
+					}
+					codegen("push_reg sp");
+					if(actual_size > 0){
+						fprintf(fp, "\tpush_const -%d\n", actual_size);
+						codegen("add");
+					}
+					codegen("pop_reg fp");
+					char* name = findid($1)->name;
+					
+					fprintf(fp, "\tjump %s\n", name);
+					fprintf(fp, "label_%d:\n", $<intVal>3);
+					// label_index++;
 				}
 				else{
 					raise("actual args are not equal to formal args");
@@ -1202,22 +1257,6 @@ unary
 				$$ = NULL;
 			}
 			if($$){
-				int actual_size = 0;
-				ste* temp = $1->formals;
-				while(temp){
-					actual_size += temp->decl->size;
-					temp = temp->prev;
-				}
-				codegen("push_reg sp");
-				if(actual_size > 0){
-					fprintf(fp, "\tpush_const -%d\n", actual_size);
-					codegen("add");
-				}
-				codegen("pop_reg fp");
-				char* name = findid($1)->name;
-				fprintf(fp, "\tjump %s\n", name);
-				fprintf(fp, "label_%d:\n", $<intVal>3);
-				label_index++;
 			}
 		}
 		| unary '(' while_func_call ')'{
@@ -1229,6 +1268,14 @@ unary
 					$$ = temp;
 					$$->declclass = _EXPR;
 					$$->size = $$->type->size;
+					if(check_is_struct_type($$->type)) $$->expanded = 1;
+
+					codegen("push_reg sp");
+					codegen("pop_reg fp");
+					char* name = findid($1)->name;
+					fprintf(fp, "\tjump %s\n", name);
+					fprintf(fp, "label_%d:\n", $<intVal>3);
+					// label_index++;
 				}
 				else{
 					raise("actual args are not equal to formal args");
@@ -1240,12 +1287,6 @@ unary
 				$$ = NULL;
 			}
 			if($$){
-				codegen("push_reg sp");
-				codegen("pop_reg fp");
-				char* name = findid($1)->name;
-				fprintf(fp, "\tjump %s\n", name);
-				fprintf(fp, "label_%d:\n", $<intVal>3);
-				label_index++;
 			}
 		}
 

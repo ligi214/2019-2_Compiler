@@ -1,3 +1,4 @@
+	shift_sp 1
 	push_const EXIT
 	push_reg fp
 	push_reg sp
@@ -59,22 +60,13 @@ f_start:
 	push_reg fp
 	push_const 8
 	add
+	push_reg sp
+	fetch
 	push_const 123
-	push_reg sp
-	push_const -1
-	add
-	fetch
-	push_reg sp
-	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
 	assign
+	fetch
 	shift_sp -1
-str_4. string "-s.x\n"
+str_4. string "-100\n"
 	push_const str_4
 	write_string
 	push_reg fp
@@ -170,56 +162,29 @@ main:
 	shift_sp 2
 main_start:
 	push_const Lglob+0
+	push_reg sp
+	fetch
 	push_const 11
-	push_reg sp
-	push_const -1
-	add
-	fetch
-	push_reg sp
-	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
 	assign
+	fetch
 	shift_sp -1
 	push_reg fp
 	push_const 1
 	add
+	push_reg sp
+	fetch
 	push_const 22
-	push_reg sp
-	push_const -1
-	add
-	fetch
-	push_reg sp
-	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
 	assign
+	fetch
 	shift_sp -1
 	push_reg fp
 	push_const 2
 	add
+	push_reg sp
+	fetch
 	push_const 33
-	push_reg sp
-	push_const -1
-	add
-	fetch
-	push_reg sp
-	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
 	assign
+	fetch
 	shift_sp -1
 str_20. string "jump!\n"
 	push_const str_20
@@ -263,20 +228,11 @@ label_0:
 label_1:
 	shift_sp -1
 	push_const Lglob+1
+	push_reg sp
+	fetch
 	push_const -100
-	push_reg sp
-	push_const -1
-	add
-	fetch
-	push_reg sp
-	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
 	assign
+	fetch
 	shift_sp -1
 	shift_sp 1
 	push_const label_2

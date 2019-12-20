@@ -1,3 +1,4 @@
+	shift_sp 1
 	push_const EXIT
 	push_reg fp
 	push_reg sp
@@ -11,44 +12,28 @@ main_start:
 	push_reg fp
 	push_const 3
 	add
+	push_reg sp
+	fetch
 	push_const 1
-	push_reg sp
-	push_const -1
-	add
-	fetch
-	push_reg sp
-	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
 	assign
+	fetch
 	shift_sp -1
 	push_reg fp
 	push_const 3
 	add
 	push_const 1
 	add
+	push_reg sp
+	fetch
 	push_const 10
-	push_reg sp
-	push_const -1
-	add
-	fetch
-	push_reg sp
-	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
 	assign
+	fetch
 	shift_sp -1
 	push_reg fp
 	push_const 5
 	add
+	push_reg sp
+	fetch
 	push_reg fp
 	push_const 3
 	add
@@ -58,7 +43,7 @@ main_start:
 	add
 	fetch
 	push_reg sp
-	push_const -2
+	push_const -3
 	add
 	fetch
 	push_reg sp
@@ -121,26 +106,19 @@ str_3. string "\n-10\n"
 	push_reg fp
 	push_const 7
 	add
+	push_reg sp
+	fetch
 	push_const 2
-	push_reg sp
-	push_const -1
-	add
-	fetch
-	push_reg sp
-	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
 	assign
+	fetch
 	shift_sp -1
 	push_reg fp
 	push_const 7
 	add
 	push_const 1
 	add
+	push_reg sp
+	fetch
 	push_reg fp
 	push_const 3
 	add
@@ -150,7 +128,7 @@ str_3. string "\n-10\n"
 	add
 	fetch
 	push_reg sp
-	push_const -2
+	push_const -3
 	add
 	fetch
 	push_reg sp
@@ -177,6 +155,8 @@ str_3. string "\n-10\n"
 	push_reg fp
 	push_const 10
 	add
+	push_reg sp
+	fetch
 	push_reg fp
 	push_const 7
 	add
@@ -190,7 +170,7 @@ str_3. string "\n-10\n"
 	add
 	fetch
 	push_reg sp
-	push_const -3
+	push_const -4
 	add
 	fetch
 	push_reg sp
@@ -230,40 +210,24 @@ str_3. string "\n-10\n"
 	add
 	push_const 5
 	add
-	push_const 0
-	push_reg sp
-	push_const -1
-	add
-	fetch
 	push_reg sp
 	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
+	push_const 97
 	assign
+	fetch
 	shift_sp -1
 	push_const Lglob+0
 	push_const 5
 	add
-	push_const 0
-	push_reg sp
-	push_const -1
-	add
-	fetch
 	push_reg sp
 	fetch
-	push_reg sp
-	push_const -1
-	add
-	push_const -1
-	add
-	fetch
+	push_const 98
 	assign
+	fetch
 	shift_sp -1
 	push_const Lglob+0
+	push_reg sp
+	fetch
 	push_reg fp
 	push_const 5
 	add
@@ -273,7 +237,7 @@ str_3. string "\n-10\n"
 	add
 	fetch
 	push_reg sp
-	push_const -2
+	push_const -3
 	add
 	fetch
 	push_reg sp
@@ -300,6 +264,8 @@ str_3. string "\n-10\n"
 	push_const Lglob+0
 	push_const 2
 	add
+	push_reg sp
+	fetch
 	push_reg fp
 	push_const 10
 	add
@@ -313,7 +279,7 @@ str_3. string "\n-10\n"
 	add
 	fetch
 	push_reg sp
-	push_const -3
+	push_const -4
 	add
 	fetch
 	push_reg sp
@@ -351,6 +317,8 @@ str_3. string "\n-10\n"
 	push_reg fp
 	push_const 13
 	add
+	push_reg sp
+	fetch
 	push_const Lglob+0
 	fetch
 	push_const Lglob+1
@@ -364,7 +332,7 @@ str_3. string "\n-10\n"
 	push_const Lglob+5
 	fetch
 	push_reg sp
-	push_const -6
+	push_const -7
 	add
 	fetch
 	push_reg sp

@@ -1,4 +1,5 @@
 int main(){
+	write_string("Answer is : 11 12 14");
 	if(0){
 		write_int(1);
 		write_string("\n");

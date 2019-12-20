@@ -1,3 +1,4 @@
+	shift_sp 1
 	push_const EXIT
 	push_reg fp
 	push_reg sp
@@ -147,8 +148,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -158,8 +157,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -169,8 +166,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -180,8 +175,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -191,8 +184,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -202,8 +193,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -213,8 +202,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -224,8 +211,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -235,8 +220,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -246,8 +229,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -257,8 +238,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -268,8 +247,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -279,8 +256,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -290,8 +265,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -301,8 +274,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -312,8 +283,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -323,8 +292,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -334,8 +301,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -345,8 +310,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -356,8 +319,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -367,8 +328,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -378,8 +337,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -389,8 +346,6 @@ soo_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -468,8 +423,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -479,8 +432,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -490,8 +441,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -501,8 +450,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -512,8 +459,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -523,8 +468,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -534,8 +477,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -545,8 +486,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -556,8 +495,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -567,8 +504,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -578,8 +513,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -589,8 +522,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -600,8 +531,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -611,8 +540,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -622,8 +549,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -633,8 +558,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -644,8 +567,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -655,8 +576,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -666,8 +585,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -677,8 +594,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -688,8 +603,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -699,8 +612,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp
@@ -710,8 +621,6 @@ soo2_start:
 	add
 	fetch
 	assign
-	push_reg sp
-	fetch
 	push_const 1
 	add
 	push_reg sp

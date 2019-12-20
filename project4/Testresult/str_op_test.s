@@ -1087,7 +1087,7 @@ str_11. string "Some more test on struct parameter and return... ans : 11111 222
 	push_reg sp
 	fetch
 	shift_sp 12
-	push_const label_4
+	push_const label_2
 	push_reg fp
 	push_const Lglob+0
 	fetch
@@ -1118,7 +1118,7 @@ str_11. string "Some more test on struct parameter and return... ans : 11111 222
 	add
 	pop_reg fp
 	jump goo
-label_4:
+label_2:
 	push_reg sp
 	push_const -13
 	add

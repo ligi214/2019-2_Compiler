@@ -1,3 +1,4 @@
+	shift_sp 1
 	push_const EXIT
 	push_reg fp
 	push_reg sp
@@ -195,7 +196,7 @@ label_0:
 	push_reg sp
 	fetch
 	shift_sp 1
-	push_const label_2
+	push_const label_1
 	push_reg fp
 	push_const Lglob+0
 	push_reg sp
@@ -203,7 +204,7 @@ label_0:
 	add
 	pop_reg fp
 	jump foo
-label_2:
+label_1:
 	assign
 	fetch
 	shift_sp -1

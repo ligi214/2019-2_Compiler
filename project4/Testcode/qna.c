@@ -1,59 +1,37 @@
-int glob_a;
-char glob_c;
-struct s{
-	char c;
-	struct str {
-		struct strstr{
-			int a;
-			char c;
-		} ss;
-		int a;
-		char c;
-	}sss;
-	int b;
-} s1;
-
-struct strstr strfoo(){
-	struct strstr temp;
-	temp.a = 101;
-	temp.c = 'g';
-	return temp;
+struct st {
+	int a[3];
+} f() {
+	struct st s1;
+	s1.a[0] = 111;
+	s1.a[1] = 222;
+	s1.a[2] = 333;
+	return s1;
 }
 
-int main(){
-	/*
-	int *a;
-	int b;
+int boo(struct st s) {
+	return s.a[0];
+}
+
+void goo(){
+	write_int(1);
+	write_string("\nyesyes\n");
+}
+
+void main() {
+	struct st s1;
 	int c;
-	int arr[10];
-	struct str strarr[5];
-	struct strstr strstrarr[3];
-	strstrarr[2] = strfoo();
-	write_char(strstrarr[2].c);
-	write_string("\n");
-	*/
-	write_char(strfoo().c);
-	write_string("\n");
+	s1 = f();
 	/*
-	strstrarr[2].a = 1000;
-	s1.b = 1;
-	s1.sss.a = 2;
-	strarr[1].c = 'c';
-	s1.c = 's';
-	s1.sss.ss.c = 'd';
-	write_int(s1.b);
-	write_string("\n");
-	write_int(++s1.sss.a);
-	write_string("\n");
-	write_char(s1.sss.ss.c);
-	write_string("\n");
-	write_char(strarr[1].c);
-	write_string("\n");
-	write_int(strstrarr[2].a);
-	write_string("\n");
-	write_char(s1.c);
-	write_string("\n");
+	s1.a[0] = 111, s1.a[1] = 222, a1.a[2] = 333
 	*/
-	return 1;
+	write_int(s1.a[0]);
+	write_string("\n");
+	write_int(s1.a[1]);
+	write_string("\n");
+	write_int(s1.a[2]);
+	write_string("\n");
+	c = boo(f()) + 1;
+	write_int(c);
+	write_string("\n");
+	goo();
 }
-

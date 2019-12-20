@@ -11,6 +11,8 @@ int main(){
 	int i;
 	int j;
 	int k;
+	write_string("foo entering message - 100 103 - foo entering message - 101 104\n 102\n");
+	write_string("0 4 6 8 106\n");
 	i = 0;
 	j = 100;
 	k = foo(foo(j));

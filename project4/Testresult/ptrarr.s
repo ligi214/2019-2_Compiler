@@ -1,3 +1,4 @@
+	shift_sp 1
 	push_const EXIT
 	push_reg fp
 	push_reg sp
@@ -364,5 +365,4 @@ str_9. string "\n"
 	push_const 0
 	push_reg sp
 	fetch
-	push_const 999
-	push_r
+	push_const

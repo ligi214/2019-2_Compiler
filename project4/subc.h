@@ -80,6 +80,7 @@ typedef struct decl{
 	int is_param;				/* to distinguish function parameters from local vars */
 	struct scope* scope;		/* VAR : scope when VAR declared */
 	struct decl *next;			/* For list_of_variables declarations */
+	int expanded;
 } decl;
 
 /* Defined in subc.l init_type() */

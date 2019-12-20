@@ -24,9 +24,9 @@ Grammar
    10               | VOID
    11               | struct_specifier
 
-   12 $@1: %empty
+   12 @1: %empty
 
-   13 struct_specifier: STRUCT ID '{' $@1 def_list '}'
+   13 struct_specifier: STRUCT ID '{' @1 def_list '}'
    14                 | STRUCT ID
 
    15 @2: %empty
@@ -232,7 +232,7 @@ type_specifier (50)
     on left: 9 10 11, on right: 4 5 7 16 18 20 31 32 33
 struct_specifier (51)
     on left: 13 14, on right: 11 26
-$@1 (52)
+@1 (52)
     on left: 12, on right: 13
 func_decl (53)
     on left: 16 18 20, on right: 6 8 34
@@ -377,7 +377,7 @@ State 5
 
 State 6
 
-   13 struct_specifier: STRUCT . ID '{' $@1 def_list '}'
+   13 struct_specifier: STRUCT . ID '{' @1 def_list '}'
    14                 | STRUCT . ID
 
     ID  shift, and go to state 11
@@ -427,7 +427,7 @@ State 10
 
 State 11
 
-   13 struct_specifier: STRUCT ID . '{' $@1 def_list '}'
+   13 struct_specifier: STRUCT ID . '{' @1 def_list '}'
    14                 | STRUCT ID .
 
     '{'  shift, and go to state 18
@@ -486,11 +486,11 @@ State 17
 
 State 18
 
-   13 struct_specifier: STRUCT ID '{' . $@1 def_list '}'
+   13 struct_specifier: STRUCT ID '{' . @1 def_list '}'
 
-    $default  reduce using rule 12 ($@1)
+    $default  reduce using rule 12 (@1)
 
-    $@1  go to state 22
+    @1  go to state 22
 
 
 State 19
@@ -534,7 +534,7 @@ State 21
 
 State 22
 
-   13 struct_specifier: STRUCT ID '{' $@1 . def_list '}'
+   13 struct_specifier: STRUCT ID '{' @1 . def_list '}'
 
     $default  reduce using rule 30 (def_list)
 
@@ -614,7 +614,7 @@ State 29
 
 State 30
 
-   13 struct_specifier: STRUCT ID '{' $@1 def_list . '}'
+   13 struct_specifier: STRUCT ID '{' @1 def_list . '}'
    29 def_list: def_list . def
 
     TYPE    shift, and go to state 4
@@ -740,7 +740,7 @@ State 39
 
 State 40
 
-   13 struct_specifier: STRUCT ID '{' $@1 def_list '}' .
+   13 struct_specifier: STRUCT ID '{' @1 def_list '}' .
 
     $default  reduce using rule 13 (struct_specifier)
 

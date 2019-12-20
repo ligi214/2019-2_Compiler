@@ -56,6 +56,6 @@ void main(){
 	write_string("jump!\n");
 	h(x, y, z);
 	g(s, y);
-	s.x = -100;
+	s.x = 100;
 	f(s, x, y, x+y+z, 44, 55);
 }
