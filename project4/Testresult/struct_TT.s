@@ -290,7 +290,19 @@ label_0:
 	push_const 1
 	add
 	shift_sp -4
+	push_reg sp
+	push_const -1
+	add
+	fetch
+	push_reg sp
+	fetch
+	push_reg sp
+	push_const -2
+	add
+	fetch
 	assign
+	push_const 1
+	add
 	jump hoo_final
 hoo_final:
 	push_reg fp

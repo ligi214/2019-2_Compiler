@@ -166,20 +166,13 @@ label_0:
 	fetch
 	assign
 	shift_sp -3
-	push_reg fp
-	push_const 1
-	add
-	push_const 0
-	add
-	fetch
-	write_int
-str_1. string "\n"
+str_1. string "The answer is : 111 222 333 112 1 yesyes\n"
 	push_const str_1
 	write_string
 	push_reg fp
 	push_const 1
 	add
-	push_const 1
+	push_const 0
 	add
 	fetch
 	write_int
@@ -189,12 +182,22 @@ str_2. string "\n"
 	push_reg fp
 	push_const 1
 	add
-	push_const 2
+	push_const 1
 	add
 	fetch
 	write_int
 str_3. string "\n"
 	push_const str_3
+	write_string
+	push_reg fp
+	push_const 1
+	add
+	push_const 2
+	add
+	fetch
+	write_int
+str_4. string "\n"
+	push_const str_4
 	write_string
 	push_reg fp
 	push_const 4
@@ -227,8 +230,8 @@ label_1:
 	add
 	fetch
 	write_int
-str_4. string "\n"
-	push_const str_4
+str_5. string "\n"
+	push_const str_5
 	write_string
 	shift_sp 1
 	push_const label_3

@@ -579,26 +579,46 @@ stmt
 				ste *formals = pop_scope();
 				if(check_sametype(returntype, $3->type)){
 					$$ = formals->decl;
-					codegen("assign");
-					return_size--;
-					while(return_size > 0){
-						// codegen("push_reg sp");
-						// codegen("fetch");
-						codegen("push_const 1");
-						codegen("add");
+					if($3->expanded==1){
+						// TO BE UPDATED
 						codegen("push_reg sp");
+						fprintf(fp, "\tpush_const -%d\n", $3->size);
+						codegen("add");
 						codegen("fetch");
-						codegen("push_reg fp");
-						// fprintf(fp, "%d %d %d %d\n", $3->offset, current_func_actuals_size, $3->size, return_size);
-						if($3->is_param==0) offset = $3->offset+current_func_actuals_size+$3->size-return_size;
-						else offset = $3->offset + $3->size - return_size;
-						if(offset != 0){
-							fprintf(fp, "\tpush_const %d\n", offset);
+						for(int i=0;i<$3->size;i++){
+							codegen("push_reg sp");
+							codegen("fetch");
+							codegen("push_reg sp");
+							fprintf(fp, "\tpush_const -%d\n", $3->size+1-i);
+							codegen("add");
+							codegen("fetch");
+							codegen("assign");
+							codegen("push_const 1");
 							codegen("add");
 						}
-						codegen("fetch");
+					}
+					else{
 						codegen("assign");
 						return_size--;
+						while(return_size > 0){
+							// codegen("push_reg sp");
+							// codegen("fetch");
+							codegen("push_const 1");
+							codegen("add");
+							codegen("push_reg sp");
+							codegen("fetch");
+							codegen("push_reg fp");
+							// fprintf(fp, "%d %d %d %d\n", $3->offset, current_func_actuals_size, $3->size, return_size);
+							if($3->is_param==0) offset = $3->offset+current_func_actuals_size+$3->size-return_size;
+							else offset = $3->offset + $3->size - return_size;
+							if(offset != 0){
+								fprintf(fp, "\tpush_const %d\n", offset);
+								codegen("add");
+							}
+							codegen("fetch");
+							codegen("assign");
+							return_size--;
+						}
 					}
 					fprintf(fp, "\tjump %s_final\n", current_func_name);
 				}
@@ -1145,9 +1165,9 @@ unary
 						codegen("push_reg sp");
 						fprintf(fp, "\tpush_const -%d\n", arr_size);
 						codegen("add");
-						codegen("push_reg sp");
-						codegen("fetch");
 						for(int i=0;i<$1->type->elementvar->size;i++){
+							codegen("push_reg sp");
+							codegen("fetch");
 							codegen("push_reg sp");
 							codegen("fetch");
 							codegen("push_reg sp");
