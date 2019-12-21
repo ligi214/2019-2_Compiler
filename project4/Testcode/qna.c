@@ -21,6 +21,7 @@ void main() {
 	struct st s1;
 	int c;
 	s1 = f();
+	write_string("The answer is : 111 222 333 112 1 yesyes\n");
 	/*
 	s1.a[0] = 111, s1.a[1] = 222, a1.a[2] = 333
 	*/

@@ -1,6 +1,6 @@
 %{
 /*
- * File Name   : subc.y
+ * File name   : subc.y
  * Description : a skeleton bison input
  */
 
@@ -589,6 +589,7 @@ stmt
 						codegen("push_reg sp");
 						codegen("fetch");
 						codegen("push_reg fp");
+						// fprintf(fp, "%d %d %d %d\n", $3->offset, current_func_actuals_size, $3->size, return_size);
 						if($3->is_param==0) offset = $3->offset+current_func_actuals_size+$3->size-return_size;
 						else offset = $3->offset + $3->size - return_size;
 						if(offset != 0){
@@ -926,7 +927,7 @@ binary
 		}
 		| unary %prec '=' {
 			$$ = $1;
-			print_get_unary_val($1);
+			if($$->expanded == 0) print_get_unary_val($1);
 		}
 
 unary
@@ -1130,12 +1131,40 @@ unary
 			else if(check_is_array_type($1->type)){
 				if(check_is_int_type($3->type)){
 					$$ = copy_decl($1->type->elementvar);
-					if($1->type->elementvar->size != 1){
-						fprintf(fp, "\tpush_const %d\n", $1->type->elementvar->size);
-						codegen("mul");
+					if($1->expanded == 0){
+						if($1->type->elementvar->size != 1){
+							fprintf(fp, "\tpush_const %d\n", $1->type->elementvar->size);
+							codegen("mul");
+						}
+						codegen("add");
+						$$->expanded = 0;
 					}
-					codegen("add");
-					$$->expanded = 0;
+					else{
+						int arr_size = $1->size;
+						int element_size = $1->type->elementvar->size;
+						codegen("push_reg sp");
+						fprintf(fp, "\tpush_const -%d\n", arr_size);
+						codegen("add");
+						codegen("push_reg sp");
+						codegen("fetch");
+						for(int i=0;i<$1->type->elementvar->size;i++){
+							codegen("push_reg sp");
+							codegen("fetch");
+							codegen("push_reg sp");
+							codegen("push_const -3");
+							codegen("add");
+							codegen("fetch");
+							fprintf(fp, "\tpush_const %d\n", $1->type->elementvar->size);
+							codegen("mul");
+							codegen("add");
+							codegen("fetch");
+							codegen("assign");
+							codegen("push_const 1");
+							codegen("add");
+						}
+						fprintf(fp, "\tshift_sp -%d\n", arr_size-element_size+2);
+						$$->expanded = 1;
+					}
 				}
 				else{
 					$$ = NULL;
@@ -1159,6 +1188,7 @@ unary
 						$$ = makevardecl(temp->type);
 						$$->declclass = $1->declclass;
 						$$->expanded = 1;
+						$$->offset = $1->offset + temp->offset;
 						int struct_size = $1->size;
 						int offset = temp->offset;
 						int id_size = temp->size;
@@ -1185,6 +1215,7 @@ unary
 						$$ = makevardecl(temp->type);
 						$$->declclass = $1->declclass;
 						$$->expanded = 0;
+						$$->offset = $1->offset + temp->offset;
 						if(temp->offset > 0){
 							fprintf(fp, "\tpush_const %d\n", temp->offset);
 							codegen("add");
@@ -1346,4 +1377,3 @@ void debug(char *message){
 	int lineno = read_line();
 	printf("line %d, %s\n",lineno, message);
 }
-
